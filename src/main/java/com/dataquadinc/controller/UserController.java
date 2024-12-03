@@ -14,6 +14,7 @@ import javax.management.relation.RoleNotFoundException;
 import java.util.Set;
 
 @RestController
+@RequestMapping("/user")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -24,9 +25,14 @@ public class UserController {
          return   userService.registerUser(userDto);
 
     }
-    @GetMapping("/roles/{userId}")
-    public ResponseEntity<Set<Roles>> getRolesByUserId(@PathVariable String userId ) {
-        return userService.getRolesByUserId(userId);
+//    @GetMapping("/roles/{userId}")
+//    public ResponseEntity<Set<Roles>> getRolesByUserId(@PathVariable String userId ) {
+//        return userService.getRolesByUserId(userId);
+//    }
+
+    @GetMapping("/roles")
+    public String getRolesByUserId( ) {
+        return "hello world";
     }
 
 }
