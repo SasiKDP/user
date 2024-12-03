@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleNotFoundException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +44,7 @@ public class UserService {
 
         if (userDao.findByUserName(userDto.getUserName()) != null) {
 
-           errors.put("userName","userName already exists");
+            errors.put("userName","userName already exists");
         }
 
         if (userDao.findByEmail(userDto.getEmail())!=null) {
@@ -88,7 +88,7 @@ public class UserService {
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
 
-      resp.setStatus(HttpStatus.CREATED.value());
+        resp.setStatus(HttpStatus.CREATED.value());
         resp.setMessage(dbUser.getRoles()+" Created Sucessfully");
         resp.setData(res);
 

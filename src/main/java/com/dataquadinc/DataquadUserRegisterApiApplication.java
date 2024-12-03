@@ -9,5 +9,5 @@ public class DataquadUserRegisterApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DataquadUserRegisterApiApplication.class, args);
 	}
-
 }
+
