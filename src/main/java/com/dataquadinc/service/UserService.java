@@ -89,7 +89,7 @@ public class UserService {
         res.setEmail(dbUser.getEmail());
 
         resp.setStatus(HttpStatus.CREATED.value());
-        resp.setMessage(dbUser.getRoles()+" Created Sucessfully");
+        resp.setMessage(" Created Sucessfully");
         resp.setData(res);
 
         return new ResponseEntity<ResponseBean<UserResponse>>(resp,HttpStatus.CREATED);
