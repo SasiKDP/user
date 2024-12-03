@@ -1,9 +1,11 @@
 package com.dataquadinc.dto;
 
+import com.dataquadinc.model.Roles;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -22,8 +24,8 @@ public class LoginResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Payload {
-        private Long userId;
-        private String role;
+        private String userId;
+        private Set<Roles> roles;
         private LocalDateTime loginTimestamp;
     }
 

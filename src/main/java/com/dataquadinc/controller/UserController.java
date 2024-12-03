@@ -1,31 +1,39 @@
 package com.dataquadinc.controller;
 
-import com.dataquadinc.exceptions.DuplicateEmailException;
+import com.dataquadinc.dto.UserDto;
+import com.dataquadinc.dto.ResponseBean;
+import com.dataquadinc.dto.UserResponse;
+import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/auth")
-public class UserController {
+import javax.management.relation.RoleNotFoundException;
+import java.util.Set;
 
+@RestController
+@RequestMapping("/user")
+@CrossOrigin("*")
+public class UserController {
     @Autowired
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDetails userDetails) {
-        try {
-            String result = userService.register(userDetails);
+    public ResponseEntity<ResponseBean<UserResponse>> registerUser(@RequestBody UserDto userDto) throws RoleNotFoundException {
 
-            return ResponseEntity.ok().body(result);
+         return   userService.registerUser(userDto);
 
-        } catch (DuplicateEmailException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
+    @GetMapping("/roles/{userId}")
+    public ResponseEntity<Set<Roles>> getRolesByUserId(@PathVariable String userId ) {
+        return userService.getRolesByUserId(userId);
+    }
+
+    @GetMapping("/roles")
+    public String getRolesByUserId( ) {
+        return "hello world";
+    }
+
 }

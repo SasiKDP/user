@@ -1,66 +1,72 @@
 package com.dataquadinc.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import com.dataquadinc.model.UserType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
+@Data
 public class UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
-
     @Column(unique = true)
-    private String email;
+    private String userId; // This is set manually from the frontend
 
+    private String userName;
+
+    @Column(nullable = false)
     private String password;
 
-    private LocalDateTime loginTimestamp;
+    @Column(nullable=false)
+    private String confirmPassword;
 
-    // Add role field here
-    private String role;  // Can be "admin", "user", "superadmin" etc.
+    @Email
+    @Column(unique = true, nullable = false)
+    private String email;
 
-    public Long getUserId() {
-        return userId;
-    }
+    @Email
+    @Column(unique = true, nullable = false)
+    private String personalemail;
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+    @NotEmpty
+    @Pattern(regexp = "^[0-9]{10}$", message = "Invalid phone number")
+    private String phoneNumber;
 
-    public String getEmail() {
-        return email;
-    }
+    @NotEmpty
+    private String designation;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt= LocalDateTime.now();;
 
-    public String getPassword() {
-        return password;
-    }
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt=LocalDateTime.now();;
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
-    public LocalDateTime getLoginTimestamp() {
-        return loginTimestamp;
-    }
+    @Column(name = "last_Login_Time")
+    private LocalDateTime lastLoginTime;
 
-    public void setLoginTimestamp(LocalDateTime loginTimestamp) {
-        this.loginTimestamp = loginTimestamp;
-    }
 
-    public String getRole() {
-        return role;  // Return the user's role
-    }
 
-    public void setRole(String role) {
-        this.role = role;  // Set the user's role
-    }
+    @Column(nullable = false)
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles", // Name of the join table
+            joinColumns = @JoinColumn(name = "user_id"), // Foreign key to UserDetails
+            inverseJoinColumns = @JoinColumn(name = "role_id") // Foreign key to Roles
+    )
+    private Set<Roles> roles = new HashSet<>();
+
+
+   
 }
