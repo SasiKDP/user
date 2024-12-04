@@ -34,18 +34,17 @@ public class LoginService {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        // Set login timestamp
         userDetails.setLastLoginTime(LocalDateTime.now());
         loginRepository.save(userDetails);
 
-        // Prepare the payload with the desired response format
+
         LoginResponseDTO.Payload payload = new LoginResponseDTO.Payload(
                 userDetails.getUserId(),
-                userDetails.getRoles(),  // Return role as a String
+                userDetails.getRoles(),  
                 userDetails.getLastLoginTime()
         );
 
-        // Return response in the desired format with success message
+
         return new LoginResponseDTO(true, "Login successful", payload);
     }
 }

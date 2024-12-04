@@ -29,14 +29,12 @@ public class LoginResponseDTO {
         private LocalDateTime loginTimestamp;
     }
 
-    // Custom constructor to include message and errors
+
     public LoginResponseDTO(boolean success, String message, Payload payload) {
         this.success = success;
         this.message = message;
         this.payload = payload;
     }
-
-    // Setter for errors
     public void setErrors(Map<String, String> errors) {
         this.errors = errors;
     }
