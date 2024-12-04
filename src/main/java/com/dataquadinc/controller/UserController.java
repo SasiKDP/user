@@ -31,9 +31,6 @@ public class UserController {
         return userService.getRolesByUserId(userId);
     }
 
-    @GetMapping("/roles")
-    public String getRolesByUserId( ) {
-        return "hello world";
-    }
+
 
 }

@@ -27,14 +27,14 @@ public class LoginController {
             LoginResponseDTO response = loginService.authenticate(loginDTO);
             return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
-            // Handle invalid credentials case
+
             LoginResponseDTO response = new LoginResponseDTO(
                     false,
                     "Invalid credentials",
-                    null  // Set payload as null for failure case
+                    null
             );
 
-            // Add errors if necessary
+
             response.setErrors(Map.of("ERROR", "Invalid credentials"));
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
