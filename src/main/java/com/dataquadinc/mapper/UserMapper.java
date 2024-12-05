@@ -32,6 +32,9 @@ public class UserMapper {
         user.setPersonalemail(userDto.getPersonalemail());
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setDesignation(userDto.getDesignation());
+        user.setDob(userDto.getDob());
+        user.setGender(userDto.getGender());
+        user.setJoiningDate(userDto.getJoiningDate());
 
 
         return user;
