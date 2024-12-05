@@ -80,15 +80,20 @@ public class UserService {
         user.setRoles(roles);
 
 
+
+
+
         // Save the user to the database
         UserDetails dbUser = userDao.save(user);
-        ResponseBean<UserResponse> resp = new ResponseBean<UserResponse>();
+
         UserResponse res=new UserResponse();
         res.setUserName(dbUser.getUserName());
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
-
-        resp.setStatus(HttpStatus.CREATED.value());
+          // Set success to true
+        res.setError(null);
+        ResponseBean<UserResponse> resp = new ResponseBean<UserResponse>();
+        resp.setSuccess(true);
         resp.setMessage(" Created Sucessfully");
         resp.setData(res);
 

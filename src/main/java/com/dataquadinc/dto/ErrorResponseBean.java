@@ -8,8 +8,9 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ErrorResponseBean {
-    public int status;
+public class  ErrorResponseBean {
+    public boolean success;
+    public String message;
     public String error;
     public Map<String, String> fieldErrors;
 }

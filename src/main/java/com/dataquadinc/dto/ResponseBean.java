@@ -5,7 +5,11 @@ import lombok.Data;
 @Data
 public class ResponseBean<T> {
 
-    private int status;
+    private boolean success;
     private String message;
     private T data;
+
+
+
+
 }

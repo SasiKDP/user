@@ -17,8 +17,16 @@ public class GlobalExceptionHandler {
 
 
        // log.error("Validation Error: {}", ex.getErrors());
-        ErrorResponseBean errorResponse = ErrorResponseBean.builder().status(HttpStatus.BAD_REQUEST.value()).error("Validation Error").fieldErrors(ex.getErrors()).build();
+//        ErrorResponseBean errorResponse = ErrorResponseBean.builder().status(HttpStatus.BAD_REQUEST.value()).error("Validation Error").fieldErrors(ex.getErrors()).build();
+        Map<String, String> errors = ex.getErrors();  // Get the validation errors
 
+        // Construct the error response
+        ErrorResponseBean errorResponse = ErrorResponseBean.builder()
+                .success(false)  // Indicate failure
+                .message("unsuccessfull")
+                .error("Validation Error")  // Set the error message
+                .fieldErrors(errors)  // Set the validation errors in the fieldErrors map
+                .build();
         return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST);
     }
 
