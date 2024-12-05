@@ -1,20 +1,27 @@
 package com.dataquadinc.controller;
-import com.dataquadinc.dto.LogoutResponse;
+import com.dataquadinc.dto.LogoutResponseDTO;
+import com.dataquadinc.model.Roles;
 import com.dataquadinc.service.LogoutService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
+
 @RestController
 @RequestMapping("/logout")
-@CrossOrigin("*")
 public class LogoutController {
+
+    private final LogoutService logoutService;
+
     @Autowired
-    private LogoutService logoutService;
+    public LogoutController(LogoutService logoutService) {
+        this.logoutService = logoutService;
+    }
 
     @PutMapping("/save/{userId}")
-    public ResponseEntity<LogoutResponse> saveUser(@PathVariable String userId) {
-        LogoutResponse response = logoutService.logoutUser(userId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public LogoutResponseDTO logout(@PathVariable String userId) {
+        return logoutService.logout(userId);
     }
 }
+
+

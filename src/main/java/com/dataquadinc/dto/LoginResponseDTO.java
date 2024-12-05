@@ -18,7 +18,7 @@ public class LoginResponseDTO {
     private boolean success;
     private String message;
     private Payload payload;
-    private Map<String, String> errors;  // Added errors map for failure cases
+    private Map<String, String> errors;
 
     @Data
     @AllArgsConstructor

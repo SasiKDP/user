@@ -1,5 +1,4 @@
 package com.dataquadinc.service;
-
 import com.dataquadinc.dto.LoginDTO;
 import com.dataquadinc.dto.LoginResponseDTO;
 import com.dataquadinc.exceptions.InvalidCredentialsException;
@@ -33,18 +32,13 @@ public class LoginService {
         if (!passwordEncoder.matches(loginDTO.getPassword(), userDetails.getPassword())) {
             throw new InvalidCredentialsException("Invalid credentials");
         }
-
         userDetails.setLastLoginTime(LocalDateTime.now());
         loginRepository.save(userDetails);
-
-
         LoginResponseDTO.Payload payload = new LoginResponseDTO.Payload(
                 userDetails.getUserId(),
                 userDetails.getRoles(),  
                 userDetails.getLastLoginTime()
         );
-
-
         return new LoginResponseDTO(true, "Login successful", payload);
     }
 }
