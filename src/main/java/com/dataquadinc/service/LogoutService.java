@@ -1,41 +1,44 @@
 package com.dataquadinc.service;
-import com.dataquadinc.dto.LogoutResponse;
-import com.dataquadinc.exceptions.InvaildUserException;
+
+import com.dataquadinc.dto.LogoutResponseDTO;
+import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
-import com.dataquadinc.repository.UserDao;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 @Service
 public class LogoutService {
-    @Autowired
-    private UserDao userDao;
 
+    private final UserDao userDao;
 
-    public LogoutResponse logoutUser(String userId) {
-
-        UserDetails user = userDao.findByUserId(userId);
-
-        // Check if the user is null, if so, throw an exception
-        if (user == null) {
-            throw new InvaildUserException("User Not Found With Id: " + userId);
-        }
-        LocalDateTime localDateTime = LocalDateTime.now();
-        user.setLastLoginTime(localDateTime);
-        userDao.save(user);
-        LogoutResponse response = new LogoutResponse();
-        response.setUserId(userId);
-        response.setLogoutTime(localDateTime);
-        return response;
-
+    public LogoutService(UserDao userDao) {
+        this.userDao = userDao;
     }
+
+    public LogoutResponseDTO logout(String userId) {
+        boolean success = processLogout(userId);
+
+        if (success) {
+
+            LocalDateTime logoutTimestamp = LocalDateTime.now();
+            LogoutResponseDTO.Payload payload = new LogoutResponseDTO.Payload(userId,logoutTimestamp);
+            return new LogoutResponseDTO(true, "Logout successful", payload);
+        } else {
+
+           Map<String, String> errors = new HashMap<>();
+            errors.put("error", "Logout failed for user: " + userId);
+            return new LogoutResponseDTO(false, "Logout failed", null, errors);
+        }
+    }
+
+    private boolean processLogout(String userId) {
+        UserDetails userDetails = userDao.findByUserId(userId);
+        return userDetails != null;
+    }
+
 }
-
-
-
-
-
-
 

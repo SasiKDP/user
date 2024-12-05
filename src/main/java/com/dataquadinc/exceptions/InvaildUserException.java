@@ -2,7 +2,6 @@ package com.dataquadinc.exceptions;
 
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-
 public class InvaildUserException extends RuntimeException {
 
     public InvaildUserException() {
@@ -16,4 +15,5 @@ public class InvaildUserException extends RuntimeException {
     }
 
 }
+
 
