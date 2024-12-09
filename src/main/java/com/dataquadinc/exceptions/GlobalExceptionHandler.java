@@ -3,6 +3,8 @@ package com.dataquadinc.exceptions;
 import com.dataquadinc.dto.ErrorResponseBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -16,8 +18,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseBean> handleValidationException(ValidationException ex) {
 
 
-       // log.error("Validation Error: {}", ex.getErrors());
-//        ErrorResponseBean errorResponse = ErrorResponseBean.builder().status(HttpStatus.BAD_REQUEST.value()).error("Validation Error").fieldErrors(ex.getErrors()).build();
+
         Map<String, String> errors = ex.getErrors();  // Get the validation errors
 
         // Construct the error response
@@ -28,6 +29,19 @@ public class GlobalExceptionHandler {
                 .fieldErrors(errors)  // Set the validation errors in the fieldErrors map
                 .build();
         return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            errors.put(fieldName, "Invalid value for " + fieldName + ". Please check and provide the correct information.");
+        });
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvaildUserException.class)

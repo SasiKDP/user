@@ -34,7 +34,7 @@ public class UserMapper {
         user.setDesignation(userDto.getDesignation());
         user.setDob(userDto.getDob());
         user.setGender(userDto.getGender());
-        user.setJoiningDate(userDto.getJoiningDate());
+       user.setJoiningDate(userDto.getJoiningDate());
 
 
         return user;

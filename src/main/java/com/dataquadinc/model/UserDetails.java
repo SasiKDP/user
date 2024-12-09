@@ -52,7 +52,7 @@ public class UserDetails {
 
 
     @Column(name = "dob", nullable = false)
-    private LocalDate dob;
+    private String dob;
 
 
 
@@ -61,7 +61,7 @@ public class UserDetails {
 
 
     @Column(name = "joining_date", nullable = false)
-    private LocalDate joiningDate;
+    private String joiningDate;
 
     @NotEmpty
     private String designation;

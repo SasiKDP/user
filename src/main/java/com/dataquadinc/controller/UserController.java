@@ -4,8 +4,8 @@ import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.dto.UserResponse;
 import com.dataquadinc.model.Roles;
-import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +14,13 @@ import javax.management.relation.RoleNotFoundException;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/user")
-@CrossOrigin("*")
+@RequestMapping("/users")
 public class UserController {
     @Autowired
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseBean<UserResponse>> registerUser(@RequestBody UserDto userDto) throws RoleNotFoundException {
+    public ResponseEntity<ResponseBean<UserResponse>> registerUser(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
 
          return   userService.registerUser(userDto);
 
@@ -31,6 +30,10 @@ public class UserController {
         return userService.getRolesByUserId(userId);
     }
 
+    @GetMapping("/test")
+    public String getTest(){
+        return "hello world";
+    }
 
 
 }
