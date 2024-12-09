@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
-@CrossOrigin("*")
+@RequestMapping("/users")
 public class LoginController {
 
     @Autowired
