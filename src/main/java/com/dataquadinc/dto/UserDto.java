@@ -16,63 +16,63 @@ import java.util.Set;
 @Data
 public class UserDto {
 
-    @Id
-    @Size( max = 8, message = "User ID must be between 5 and 20 characters")
-    private String userId;
+        @Id
+        @Size( max = 8, message = "User ID must be between 5 and 20 characters")
+        private String userId;
 
-    @NotEmpty( message="userName can not be empty")
-    @Size(min = 8, max = 20, message = "User name must be between 2 and 50 characters")
-    private String userName;
-
-
-
-    @NotEmpty(message = "Password must not be empty")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
-    private String password;
-
-    @NotEmpty
-
-    @NotEmpty(message = "Password must not be empty")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
-    private String confirmPassword;
+        @NotEmpty( message="userName can not be empty")
+        @Size(min = 8, max = 20, message = "User name must be between 2 and 50 characters")
+        private String userName;
 
 
-    @Email
-    @Column(unique = true, nullable = false)
-    @NotEmpty(message = "Email must not be empty")
-    @Size(min = 20, max = 50, message = "email must be between 20 and 50 characters")
-    private String email;
 
-    @Email
-    @Column(unique = true, nullable = false)
-    @NotEmpty(message = "Email must not be empty")
-    @Size(min = 20, max = 50, message = "email must be between 20 and 50 characters")
-    private String personalemail;
+        @NotEmpty(message = "Password must not be empty")
+        @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
+        private String password;
 
-    @NotEmpty
-    @Pattern(regexp = "^[0-9]{10}$", message = "Invalid phone number")
-    private String phoneNumber;
+        @NotEmpty
 
-    @Column(name = "dob", nullable = false)
-//    @Past(message = "Date of birth must be in the past")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private String dob;
-
-    @Column(name = "gender", nullable = false)
-    @Pattern(regexp = "Male|Female", message = "Gender must be Male, Female")
-    private String gender;
-
-//    @Past(message = "Date of birth must be in the past")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column(name = "joining_date", nullable = false)
-    private String joiningDate;
+        @NotEmpty(message = "Password must not be empty")
+        @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
+        private String confirmPassword;
 
 
-    @NotEmpty
-    private String designation;
+        @Email
+        @Column(unique = true, nullable = false)
+        @NotEmpty(message = "Email must not be empty")
+        @Size(min = 20, max = 50, message = "email must be between 20 and 50 characters")
+        private String email;
+
+        @Email
+        @Column(unique = true, nullable = false)
+        @NotEmpty(message = "Email must not be empty")
+        @Size(min = 20, max = 50, message = "email must be between 20 and 50 characters")
+        private String personalemail;
+
+        @NotEmpty
+        @Pattern(regexp = "^[0-9]{10}$", message = "Invalid phone number")
+        private String phoneNumber;
+
+        @Column(name = "dob", nullable = false)
+    //    @Past(message = "Date of birth must be in the past")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private String dob;
+
+        @Column(name = "gender", nullable = false)
+        @Pattern(regexp = "Male|Female", message = "Gender must be Male, Female")
+        private String gender;
+
+    //    @Past(message = "Date of birth must be in the past")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        @Column(name = "joining_date", nullable = false)
+        private String joiningDate;
 
 
-    private Set<UserType> roles;
+        @NotEmpty
+        private String designation;
+
+
+        private Set<UserType> roles;
 
     public @Size(max = 8, message = "User ID must be between 5 and 20 characters") String getUserId() {
         return userId;
