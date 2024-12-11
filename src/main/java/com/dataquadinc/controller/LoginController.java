@@ -9,8 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/users")
 public class LoginController {
@@ -25,16 +23,17 @@ public class LoginController {
             return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
 
-            LoginResponseDTO response = new LoginResponseDTO(
-                    false,
-                    "Invalid credentials",
-                    null
+            LoginResponseDTO.ErrorDetails errorDetails = new LoginResponseDTO.ErrorDetails(
+                    "300",
+                    "Invalid credentials"
             );
-
-
-            response.setErrors(Map.of("ERROR", "Invalid credentials"));
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            LoginResponseDTO errorResponse = new LoginResponseDTO(
+                    false,
+                    "Unsuccessful",
+                    null,
+                    errorDetails
+            );
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 }
