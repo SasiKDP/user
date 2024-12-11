@@ -9,7 +9,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
-public class LogoutController {
+public class  LogoutController {
 
     private final LogoutService logoutService;
 
