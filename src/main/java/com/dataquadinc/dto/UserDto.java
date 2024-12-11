@@ -5,12 +5,10 @@ import com.dataquadinc.model.UserType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Data
@@ -64,7 +62,8 @@ public class UserDto {
     //    @Past(message = "Date of birth must be in the past")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         @Column(name = "joining_date", nullable = false)
-        private String joiningDate;
+        @NotNull
+        private LocalDate joiningDate;
 
 
         @NotEmpty
@@ -137,11 +136,11 @@ public class UserDto {
         this.dob = dob;
     }
 
-    public String getJoiningDate() {
+    public @NotNull LocalDate getJoiningDate() {
         return joiningDate;
     }
 
-    public void setJoiningDate(String joiningDate) {
+    public void setJoiningDate(@NotNull LocalDate joiningDate) {
         this.joiningDate = joiningDate;
     }
 

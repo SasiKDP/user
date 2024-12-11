@@ -17,8 +17,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponseBean> handleValidationException(ValidationException ex) {
 
-        Map<String, String> errorDetails = new HashMap<>(ex.getErrors());
+        String errorMessage = String.join(", ", ex.getErrors().values());
+        Map<String, String> errorDetails = new HashMap<>();
         errorDetails.put("errorcode", "300");
+        errorDetails.put("errormessage",errorMessage);
         // Construct the error response
         ErrorResponseBean errorResponse = ErrorResponseBean.builder()
                 .success(false)  // Indicate failure

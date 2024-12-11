@@ -59,7 +59,7 @@ public class UserDetails {
 
 
     @Column(name = "joining_date", nullable = false)
-    private String joiningDate;
+    private LocalDate joiningDate;
 
     @NotEmpty
     private String designation;
@@ -76,14 +76,15 @@ public class UserDetails {
     @Column(name = "last_Login_Time")
     private LocalDateTime lastLoginTime;
 
+    @Column(nullable = false)
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles", // Name of the join table
+            joinColumns = @JoinColumn(name = "user_id"), // Foreign key to UserDetails
+            inverseJoinColumns = @JoinColumn(name = "role_id") // Foreign key to Roles
+    )
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    private Set<Roles> roles = new HashSet<>();
 
     public String getUserId() {
         return userId;
@@ -93,20 +94,20 @@ public class UserDetails {
         this.userId = userId;
     }
 
-    public Set<Roles> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Roles> roles) {
-        this.roles = roles;
-    }
-
     public String getUserName() {
         return userName;
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getConfirmPassword() {
@@ -157,19 +158,51 @@ public class UserDetails {
         this.gender = gender;
     }
 
-    @Column(nullable = false)
-    @ManyToMany
-    @JoinTable(
-            name = "user_roles", // Name of the join table
-            joinColumns = @JoinColumn(name = "user_id"), // Foreign key to UserDetails
-            inverseJoinColumns = @JoinColumn(name = "role_id") // Foreign key to Roles
-    )
-    private Set<Roles> roles = new HashSet<>();
-
-
-    public void setDesignation(String designation) {
+    public LocalDate getJoiningDate() {
+        return joiningDate;
     }
 
-    public void setJoiningDate(String joiningDate) {
+    public void setJoiningDate(LocalDate joiningDate) {
+        this.joiningDate = joiningDate;
+    }
+
+    public @NotEmpty String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(@NotEmpty String designation) {
+        this.designation = designation;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(LocalDateTime lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
+
+    public Set<Roles> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Roles> roles) {
+        this.roles = roles;
     }
 }

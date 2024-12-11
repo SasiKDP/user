@@ -48,10 +48,10 @@ public class UserService {
 //        }
 
         if (userDao.findByEmail(userDto.getEmail())!=null) {
-            errors.put("email","email is already in use");
+            errors.put("errormessage","email is already in use");
         }
         if (userDao.findByUserId(userDto.getUserId())!=null) {
-            errors.put("userId","userId already exists");
+            errors.put("errorMessage","userId already exists");
         }
 
         if( !errors.isEmpty()) {
