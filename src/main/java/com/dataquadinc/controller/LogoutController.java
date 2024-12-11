@@ -18,7 +18,7 @@ public class LogoutController {
         this.logoutService = logoutService;
     }
 
-    @PutMapping("/save/{userId}")
+    @PutMapping("/logout/{userId}")
     public LogoutResponseDTO logout(@PathVariable String userId) {
         return logoutService.logout(userId);
     }
