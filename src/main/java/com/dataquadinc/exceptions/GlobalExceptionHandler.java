@@ -17,18 +17,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponseBean> handleValidationException(ValidationException ex) {
 
-
-
-        Map<String, String> errors = ex.getErrors();  // Get the validation errors
-
+        Map<String, String> errorDetails = new HashMap<>(ex.getErrors());
+        errorDetails.put("errorcode", "300");
         // Construct the error response
         ErrorResponseBean errorResponse = ErrorResponseBean.builder()
                 .success(false)  // Indicate failure
                 .message("unsuccessfull")
-                .error("Validation Error")  // Set the error message
-                .fieldErrors(errors)  // Set the validation errors in the fieldErrors map
+                .data(null)
+                .error(errorDetails)
                 .build();
-        return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse,HttpStatus.OK);
     }
 
 
@@ -41,7 +39,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, "Invalid value for " + fieldName + ". Please check and provide the correct information.");
         });
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errors, HttpStatus.OK);
     }
 
     @ExceptionHandler(InvaildUserException.class)
