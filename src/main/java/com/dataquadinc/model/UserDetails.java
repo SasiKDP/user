@@ -22,8 +22,6 @@ public class UserDetails {
     private String userId; // This is set manually from the frontend
 
 
-
-
     private String userName;
 
 
@@ -169,5 +167,9 @@ public class UserDetails {
     private Set<Roles> roles = new HashSet<>();
 
 
+    public void setDesignation(String designation) {
+    }
 
+    public void setJoiningDate(String joiningDate) {
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:3000") // Allow all origins
 
 @RestController
 @RequestMapping("/api")
@@ -17,9 +18,10 @@ public class ForgotPasswordController {
     private ForgotPasswordService forgotPasswordService;
 
     // Forgot Password (Generate OTP)
-    @PostMapping("/forgot-password")
+    @PostMapping("/send-otp")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
         String email = forgotPasswordDto.getEmail();
+        System.out.println("Received email: " + email);
 
         // Validate email
         if (email == null || email.isEmpty()) {

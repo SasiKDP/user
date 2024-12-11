@@ -1,12 +1,28 @@
 package com.dataquadinc.dto;
 
-public class ForgotPasswordDto {
-    private String email; // User's email
-    private String otp; // OTP generated for verification
-    private String UpdatePassword; // New password to update
-    private String ConfirmPassword;
-    private String message; // To send success/error messages
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.Length;
 
+public class ForgotPasswordDto {
+    @NotNull(message = "Email cannot be null")
+    @Email(message = "Email should be valid")
+    private String email; // User's email
+
+    @NotNull(message = "OTP cannot be null")
+    @Size(min = 6, max = 6, message = "OTP must be exactly 6 characters")
+    private String otp; // OTP generated for verification
+
+    @NotNull(message = "Update Password cannot be null")
+    @Length(min = 8, message = "Password must be at least 8 characters long")
+    private String UpdatePassword; // New password to update
+
+    @NotNull(message = "Confirm Password cannot be null")
+    @Length(min = 8, message = "Confirm Password must be at least 8 characters long")
+    private String ConfirmPassword; // Confirm Password
+    // To send success/error messages
+    private String message;
     // Getters and Setters
     public String getEmail() {
         return email;
