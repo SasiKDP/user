@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000") // Allow all origins
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/users")
 public class ForgotPasswordController {
 
     @Autowired
