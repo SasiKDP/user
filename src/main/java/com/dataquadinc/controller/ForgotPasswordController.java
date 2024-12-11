@@ -17,7 +17,7 @@ public class ForgotPasswordController {
     private ForgotPasswordService forgotPasswordService;
 
     // Forgot Password (Generate OTP)
-    @PostMapping("/forgot-password")
+    @PostMapping("/forgot-password/{email}")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
         String email = forgotPasswordDto.getEmail();
 
