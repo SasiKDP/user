@@ -42,10 +42,10 @@ public class UserService {
         Map<String,String> errors = new HashMap<>();
 
 
-        if (userDao.findByUserName(userDto.getUserName()) != null) {
-
-            errors.put("userName","userName already exists");
-        }
+//        if (userDao.findByUserName(userDto.getUserName()) != null) {
+//
+//            errors.put("userName","userName already exists");
+//        }
 
         if (userDao.findByEmail(userDto.getEmail())!=null) {
             errors.put("email","email is already in use");
@@ -91,11 +91,12 @@ public class UserService {
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
           // Set success to true
-        res.setError(null);
+
         ResponseBean<UserResponse> resp = new ResponseBean<UserResponse>();
         resp.setSuccess(true);
         resp.setMessage(" Created Sucessfully");
         resp.setData(res);
+        resp.setError(null);
 
         return new ResponseEntity<ResponseBean<UserResponse>>(resp,HttpStatus.CREATED);
 

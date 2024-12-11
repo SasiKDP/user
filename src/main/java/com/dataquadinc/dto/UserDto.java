@@ -25,7 +25,6 @@ public class UserDto {
         private String userName;
 
 
-
         @NotEmpty(message = "Password must not be empty")
         @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
         private String password;
@@ -156,7 +155,9 @@ public class UserDto {
 
 
     public @NotEmpty String getDesignation() {
+
         return designation;
+
     }
 
     public void setDesignation(@NotEmpty String designation) {

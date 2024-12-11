@@ -8,9 +8,9 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class  ErrorResponseBean {
+public class  ErrorResponseBean<T> {
     public boolean success;
     public String message;
-    public String error;
-    public Map<String, String> fieldErrors;
+    private T data;
+    private Map<String,String> error;
 }
