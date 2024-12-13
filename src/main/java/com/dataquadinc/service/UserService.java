@@ -1,5 +1,6 @@
 package com.dataquadinc.service;
 
+import com.dataquadinc.dto.EmployeeWithRole;
 import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.dto.UserResponse;
 import com.dataquadinc.exceptions.ValidationException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -114,4 +116,9 @@ public class UserService {
 
     }
 
+    public List<EmployeeWithRole> getRolesId(long id)
+    {
+        List<UserDetails> list=userDao.findByRolesId(id);
+        return list.stream().map(e->new EmployeeWithRole(e.getUserId(),e.getUserName())).collect(Collectors.toList());
+    }
 }
