@@ -9,6 +9,7 @@ import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
+
 public class UserController {
     @Autowired
     private UserService userService;
@@ -34,9 +36,16 @@ public class UserController {
     }
 
     @GetMapping("/employee")
-    public List<EmployeeWithRole> getTest(){
-        return userService.getRolesId(3);
+    public ResponseEntity<List<EmployeeWithRole>> getTest() {
+        List<EmployeeWithRole> employeeRoles = userService.getRolesId(3);
+
+        if (employeeRoles.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
+
 
 
 }
