@@ -17,10 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,9 +113,16 @@ public class UserService {
 
     }
 
-    public List<EmployeeWithRole> getRolesId(long id)
-    {
-        List<UserDetails> list=userDao.findByRolesId(id);
-        return list.stream().map(e->new EmployeeWithRole(e.getUserId(),e.getUserName())).collect(Collectors.toList());
+    public List<EmployeeWithRole> getRolesId(long id) {
+        List<UserDetails> list = userDao.findByRolesId(id);
+
+        if (list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return list.stream()
+                .map(e -> new EmployeeWithRole(e.getUserId(), e.getUserName()))
+                .collect(Collectors.toList());
     }
+
 }
