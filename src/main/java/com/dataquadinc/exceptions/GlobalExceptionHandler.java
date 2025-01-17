@@ -14,44 +14,57 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrorResponseBean> handleValidationException(ValidationException ex) {
-
-        String errorMessage = String.join(", ", ex.getErrors().values());
-        Map<String, String> errorDetails = new HashMap<>();
-        errorDetails.put("errorcode", "300");
-        errorDetails.put("errormessage",errorMessage);
-        // Construct the error response
-        ErrorResponseBean errorResponse = ErrorResponseBean.builder()
-                .success(false)  // Indicate failure
-                .message("unsuccessfull")
-                .data(null)
+    // Helper method to build ErrorResponseBean
+    private <T> ResponseEntity<ErrorResponseBean<T>> buildErrorResponse(boolean success, String message, T data, Map<String, String> errorDetails, HttpStatus status) {
+        // Using Lombok's builder method directly
+        ErrorResponseBean<T> errorResponse = new  ErrorResponseBean.Builder<T>()
+                .success(success)
+                .message(message)
+                .data(data)
                 .error(errorDetails)
                 .build();
-        return new ResponseEntity<>(errorResponse,HttpStatus.OK);
+
+        // Return the ResponseEntity with appropriate status
+        return new ResponseEntity<>(errorResponse, status);
     }
 
+    // Handle custom ValidationException
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponseBean<Map<String, String>>> handleValidationException(ValidationException ex) {
+        // Combining errors from ValidationException into a single message
+        String errorMessage = String.join(", ", ex.getErrors().values());
 
+        // Build error details with error code and message
+        Map<String, String> errorDetails = new HashMap<>();
+        errorDetails.put("errorcode", "300");
+        errorDetails.put("errormessage", errorMessage);
+
+        // Return a response with a BAD_REQUEST status
+        return buildErrorResponse(false, "Validation failed", null, errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handle MethodArgumentNotValidException
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponseBean<Map<String, String>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
+        // Collecting all field validation errors
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
-            errors.put(fieldName, "Invalid value for " + fieldName + ". Please check and provide the correct information.");
+            String message = "Invalid value for field: " + fieldName + ". Please check and provide the correct information.";
+            errors.put(fieldName, message);
         });
 
-        return new ResponseEntity<>(errors, HttpStatus.OK);
+        // Returning a BAD_REQUEST status with the validation errors
+        return buildErrorResponse(false, "Validation error", errors, null, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvaildUserException.class)
-    public ResponseEntity<Map<String, String>> handleInvaildUserException(InvaildUserException ex) {
-        Map<String, String> map = new HashMap<>();
-        map.put("userId", ex.getMessage());
-        // Response<Map<String, String>> response = new Response<>(map,
-        // HttpStatus.NOT_FOUND.name());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    // Handle custom InvalidUserException
+    @ExceptionHandler(InvalidUserException.class)
+    public ResponseEntity<ErrorResponseBean<Map<String, String>>> handleInvalidUserException(InvalidUserException ex) {
+        Map<String, String> errorDetails = new HashMap<>();
+        errorDetails.put("userId", ex.getMessage()); // Accessing the message from InvalidUserException
+
+        return buildErrorResponse(false, "User not found", null, errorDetails, HttpStatus.NOT_FOUND);
     }
-
-
 }

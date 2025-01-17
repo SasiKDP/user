@@ -8,14 +8,16 @@ import com.dataquadinc.mapper.UserMapper;
 import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.model.UserType;
 import com.dataquadinc.repository.RolesDao;
 import com.dataquadinc.repository.UserDao;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,9 +36,7 @@ public class UserService {
     @Autowired
     private RolesDao rolesDao;
 
-
     public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
-
 
         Map<String,String> errors = new HashMap<>();
 
@@ -78,10 +78,6 @@ public class UserService {
 
         user.setRoles(roles);
 
-
-
-
-
         // Save the user to the database
         UserDetails dbUser = userDao.save(user);
 
@@ -99,30 +95,95 @@ public class UserService {
 
         return new ResponseEntity<ResponseBean<UserResponse>>(resp,HttpStatus.CREATED);
 
-
-
     }
-
-
     public ResponseEntity<Set<Roles>> getRolesByUserId( String UserId ) {
         UserDetails user = userDao.findByUserId(UserId);
         Set<Roles> roles = user.getRoles();
         return  ResponseEntity.ok(roles);
 
-
-
     }
 
-    public List<EmployeeWithRole> getRolesId(long id) {
-        List<UserDetails> list = userDao.findByRolesId(id);
+//    public List<EmployeeWithRole> getRolesId(long id) {
+//        List<UserDetails> list = userDao.findByRolesId(id);
+//
+//        if (list.isEmpty()) {
+//            return Collections.emptyList();
+//        }
+//
+//        return list.stream()
+//                .map(e -> new EmployeeWithRole(e.getUserId(), e.getUserName(),e.getRoles()))
+//                .collect(Collectors.toList());
+//    }
+//
+//    public ResponseEntity<List<EmployeeWithRole>> getAllEmployeesWithRoles() {
+//        List<UserDetails> users = userDao.findAll();
+//        if (users.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//
+//        List<EmployeeWithRole> employeeRoles = users.stream()
+//                .map(user -> new EmployeeWithRole(
+//                        user.getUserId(),
+//                        user.getUserName(),
+//                        user.getRoles()
+//                ))
+//                .collect(Collectors.toList());
+//
+//        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
+//    }
 
-        if (list.isEmpty()) {
-            return Collections.emptyList();
+
+    public ResponseEntity<List<EmployeeWithRole>> getAllEmployeesWithRoles() {
+        // Fetch all users from the database
+        List<UserDetails> users = userDao.findAll();
+
+        // If no users are found, return a No Content response
+        if (users.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
-        return list.stream()
-                .map(e -> new EmployeeWithRole(e.getUserId(), e.getUserName()))
+        // Map each UserDetails to an EmployeeWithRole, flattening the roles into a single string
+        List<EmployeeWithRole> employeeRoles = users.stream()
+                .map(user -> {
+                    // Ensure that user.getRoles() returns a valid Set<Roles> and handle empty roles correctly
+                    String roleName = Optional.ofNullable(user.getRoles())  // Null check for user roles
+                            .flatMap(roles -> roles.stream()
+                                    .map(role -> role.getName().name())  // Access enum name as String
+                                    .findFirst())  // Get the first role name if present
+                            .orElse("No Role");  // Default to "No Role" if no roles are found or empty
+
+                    // Create and return the EmployeeWithRole object
+                    return new EmployeeWithRole(
+                            user.getUserId(),       // Set user ID
+                            user.getUserName(),     // Set user name
+                            roleName                // Set role name as a simple string
+                    );
+                })
                 .collect(Collectors.toList());
+
+        // Return the list of EmployeeWithRole objects with an OK response status
+        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
 
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

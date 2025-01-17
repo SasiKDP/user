@@ -80,7 +80,8 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.24</version> <!-- Use the latest Lombok version -->
+			<scope>provided</scope> <!-- Lombok only needs to be available at compile-time -->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -96,10 +97,6 @@
 			<artifactId>spring-security-crypto</artifactId>
 			<version>6.3.3</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.cloud</groupId>-->
-<!--			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>-->
-<!--		</dependency>-->
 	</dependencies>
 
 	<dependencyManagement>
@@ -111,6 +108,16 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter</artifactId>
+				<exclusions>
+					<exclusion>
+						<groupId>net.bytebuddy</groupId>
+						<artifactId>byte-buddy-agent</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -119,6 +126,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.7.4</version>
 				<configuration>
 					<excludes>
 						<exclude>

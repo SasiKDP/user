@@ -20,6 +20,7 @@ public class  LogoutController {
 
     @PutMapping("/logout/{userId}")
     public LogoutResponseDTO logout(@PathVariable String userId) {
+
         return logoutService.logout(userId);
     }
 }
