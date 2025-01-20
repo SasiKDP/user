@@ -1,3 +1,4 @@
+
 FROM openjdk:17-jdk-slim AS builder
 
 # Install Maven
@@ -32,3 +33,4 @@ EXPOSE 8083
 
 # Run the JAR file
 ENTRYPOINT ["java", "-jar", "app.jar"]
+=======

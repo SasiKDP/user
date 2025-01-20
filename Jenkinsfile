@@ -1,7 +1,9 @@
 pipeline {
     environment {
     registryCredential = 'docker-hub'
+
     DOCKER_IMAGE_NAME = 'dataquad'
+
     registry = "sandycis476/dataquad"
     dockerImage = ''
   }
