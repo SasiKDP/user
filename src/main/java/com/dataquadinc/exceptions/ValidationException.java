@@ -1,23 +1,18 @@
 package com.dataquadinc.exceptions;
 
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
 import java.util.Map;
 
-@ResponseStatus(HttpStatus.OK)
-public class ValidationException extends RuntimeException{
-    private final Map<String, String> errors;
+public class ValidationException extends RuntimeException {
+    private Map<String, String> errors;  // To store the validation errors
 
-    public ValidationException (
-            Map<String, String> errors
-    ) {
-        super("Validation Failed");
+    // Constructor that accepts a map of errors
+    public ValidationException(Map<String, String> errors) {
+        super("Validation failed");
         this.errors = errors;
     }
 
-    public Map<String,String> getErrors() {
+    // Getter for errors
+    public Map<String, String> getErrors() {
         return errors;
     }
 }

@@ -5,7 +5,7 @@ import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.dto.UserResponse;
 import com.dataquadinc.model.Roles;
-import com.dataquadinc.model.UserDetails;
+
 import com.dataquadinc.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.relation.RoleNotFoundException;
+
 import java.util.List;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
-
 public class UserController {
     @Autowired
     private UserService userService;
@@ -36,16 +36,14 @@ public class UserController {
     }
 
     @GetMapping("/employee")
-    public ResponseEntity<List<EmployeeWithRole>> getTest() {
-        List<EmployeeWithRole> employeeRoles = userService.getRolesId(3);
-
-        if (employeeRoles.isEmpty()) {
+    public ResponseEntity<List<EmployeeWithRole>> getAllEmployees() {
+        ResponseEntity<List<EmployeeWithRole>> responseEntity = userService.getAllEmployeesWithRoles();
+        List<EmployeeWithRole> employeeRoles = responseEntity.getBody();
+        if (employeeRoles == null || employeeRoles.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
-
-
 
 }

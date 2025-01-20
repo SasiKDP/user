@@ -10,8 +10,11 @@ public class AppConfig {
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+
+         return new BCryptPasswordEncoder();
     }
+
+
 
 
 //    @Bean
