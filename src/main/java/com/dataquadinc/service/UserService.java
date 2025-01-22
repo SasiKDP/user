@@ -1,3 +1,4 @@
+
 package com.dataquadinc.service;
 
 import com.dataquadinc.dto.EmployeeWithRole;
@@ -85,7 +86,7 @@ public class UserService {
         res.setUserName(dbUser.getUserName());
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
-          // Set success to true
+        // Set success to true
 
         ResponseBean<UserResponse> resp = new ResponseBean<UserResponse>();
         resp.setSuccess(true);
@@ -155,8 +156,10 @@ public class UserService {
                     // Create and return the EmployeeWithRole object
                     return new EmployeeWithRole(
                             user.getUserId(),       // Set user ID
-                            user.getUserName(),     // Set user name
-                            roleName                // Set role name as a simple string
+                            user.getUserName(),
+                            // Set user name
+                            roleName  ,
+                            user.getEmail()// Set role name as a simple string
                     );
                 })
                 .collect(Collectors.toList());

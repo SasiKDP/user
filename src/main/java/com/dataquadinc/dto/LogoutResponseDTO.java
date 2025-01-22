@@ -1,5 +1,7 @@
 package com.dataquadinc.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -7,11 +9,15 @@ import java.util.Map;
 
 @Data
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LogoutResponseDTO {
-
+    @JsonProperty("success")
     private boolean success;
+    @JsonProperty("message")
     private String message;
+    @JsonProperty("payload")
     private Payload payload;
+    @JsonProperty("errors")
     private Map<String, String> errors;
 
     @Data

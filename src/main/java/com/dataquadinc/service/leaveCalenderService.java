@@ -6,6 +6,8 @@ import com.dataquadinc.repository.leaveCalendarDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class leaveCalenderService {
 
@@ -18,8 +20,6 @@ public class leaveCalenderService {
     public LeaveCalender saveLeave(leaveCalenderDto dto) {
         LeaveCalender leave = new LeaveCalender();
         leave.setUserId(dto.getUserId());
-        leave.setUserName(dto.getUserName());
-        leave.setManagerId(dto.getManagerId());
         leave.setManagerEmail(dto.getManagerEmail());
         leave.setDescription(dto.getDescription());
         leave.setStartDate(dto.getStartDate());
@@ -31,10 +31,10 @@ public class leaveCalenderService {
         // Save the leave
         LeaveCalender savedLeave = leaveCalendarDaoo.save(leave);
 
-        // Send email to manager after leave is saved
+// Send email to manager after leave is saved
         String managerEmail = dto.getManagerEmail(); // Assuming you have the manager's email in the DTO
         String subject = "Leave Request Notification";
-        String body = "Respected Manager "  + ",\n\n" +
+        String body = "Respected Manager,\n\n" +
                 "I am writing to formally request leave for the following period:\n\n" +
                 "Start Date: " + dto.getStartDate() + "\n" +
                 "End Date: " + dto.getEndDate() + "\n" +
@@ -42,12 +42,14 @@ public class leaveCalenderService {
                 "Leave Type: " + dto.getLeaveType() + "\n\n" +
                 "Reason for Leave:\n" +
                 dto.getDescription() + "\n\n" +
-                dto.getUserId() + "\n" +
-                dto.getUserName();
+                "User ID: " + dto.getUserId() + "\n";
 
-        // Send the email
+// Send the email
         emailService.sendEmail(managerEmail, subject, body);
 
         return savedLeave;
+    }
+    public List<LeaveCalender> getAllLeaves() {
+        return leaveCalendarDaoo.findAll(); // Fetch all leave records
     }
 }

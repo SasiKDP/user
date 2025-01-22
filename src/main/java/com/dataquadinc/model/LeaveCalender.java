@@ -12,8 +12,6 @@ import java.time.LocalDate;
 public class LeaveCalender {
     @Id
     private String userId;
-    private String userName;
-    private String managerId;
     private LocalDate startDate;
     private LocalDate endDate;
     private int noOfDays;
@@ -29,21 +27,6 @@ public class LeaveCalender {
         this.userId = userId;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getManagerId() {
-        return managerId;
-    }
-
-    public void setManagerId(String managerId) {
-        this.managerId = managerId;
-    }
 
     public LocalDate getStartDate() {
         return startDate;

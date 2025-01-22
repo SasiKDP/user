@@ -15,7 +15,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>DataquadUserRegisterApi</name>
 	<description>Microservice to create User Registration</description>
+<<<<<<< Updated upstream
 	<url/>
+=======
+>>>>>>> Stashed changes
 
 	<properties>
 		<java.version>17</java.version>
@@ -36,6 +39,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+<<<<<<< Updated upstream
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -59,6 +63,20 @@
 		</dependency>
 
 		<!-- Hibernate Validator (Jakarta Validation API) -->
+=======
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-security</artifactId>-->
+<!--		</dependency>-->
+
+		<!-- Hibernate Validator (Jakarta Validation API) -->
+
+<!--		<dependency>-->
+<!--			<groupId>com.fasterxml.jackson.datatype</groupId>-->
+<!--			<artifactId>jackson-datatype-lombok</artifactId>-->
+<!--			<version>2.13.0</version> &lt;!&ndash; Use the version that matches your Jackson version &ndash;&gt;-->
+<!--		</dependency>-->
+>>>>>>> Stashed changes
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
@@ -92,6 +110,15 @@
 			<scope>provided</scope>
 		</dependency>
 
+<<<<<<< Updated upstream
+=======
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.15.2</version> <!-- Use the latest stable version -->
+		</dependency>
+
+>>>>>>> Stashed changes
 		<!-- Spring Boot DevTools (for automatic reload during development) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -165,7 +192,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+<<<<<<< Updated upstream
 				<version>3.10.1</version> <!-- Use the latest stable version -->
+=======
+				<version>3.10.1</version> <!-- Latest version -->
+>>>>>>> Stashed changes
 				<configuration>
 					<source>17</source>
 					<target>17</target>
