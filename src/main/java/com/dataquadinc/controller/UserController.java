@@ -18,6 +18,7 @@ import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.Set;
 
+@CrossOrigin(origins = "http://192.168.0.140:3000")
 @RestController
 @RequestMapping("/users")
 public class UserController {

@@ -9,6 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@CrossOrigin(origins = "http://192.168.0.140:3000")
+
 @RestController
 @RequestMapping("/users")
 public class LoginController {
@@ -22,6 +27,8 @@ public class LoginController {
             LoginResponseDTO response = loginService.authenticate(loginDTO);
             return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("300", "Invalid credentials");
 
             LoginResponseDTO.ErrorDetails errorDetails = new LoginResponseDTO.ErrorDetails(
                     "300",
