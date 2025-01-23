@@ -4,6 +4,7 @@ import com.dataquadinc.dto.LoginDTO;
 import com.dataquadinc.dto.LoginResponseDTO;
 import com.dataquadinc.exceptions.InvalidCredentialsException;
 import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.model.UserType;
 import com.dataquadinc.repository.LoginRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,14 +27,23 @@ public class LoginService {
         if (userDetails == null || !passwordEncoder.matches(loginDTO.getPassword(), userDetails.getPassword())) {
             throw new InvalidCredentialsException("Invalid credentials");
         }
+        // Check if roles are present before accessing them
+        if (userDetails.getRoles() == null || userDetails.getRoles().isEmpty()) {
+            throw new InvalidCredentialsException("No roles assigned to the user");
+        }
+
 
 
         userDetails.setLastLoginTime(LocalDateTime.now());
         loginRepository.save(userDetails);
+        UserType roleType = userDetails.getRoles().iterator().next().getName();
 
         LoginResponseDTO.Payload payload = new LoginResponseDTO.Payload(
+//                userDetails.getUserId(),
+//                userDetails.getRoles().iterator().next().getName(),
+//                userDetails.getLastLoginTime()
                 userDetails.getUserId(),
-                userDetails.getRoles().iterator().next().getName(),
+                roleType,
                 userDetails.getLastLoginTime()
         );
 

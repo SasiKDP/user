@@ -1,6 +1,5 @@
 package com.dataquadinc.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,12 +16,7 @@ public class Roles {
 
     @Column(unique = true, nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserType name;  //
-
-    // (e.g., "Admin", "Manager", "Employee")
-
-    @ManyToMany(mappedBy = "roles")
-    private Set<UserDetails> userDetails;
+    private UserType name;  //  (e.g., "Admin", "Manager", "Employee")
 
     public Long getId() {
         return id;
@@ -38,13 +32,5 @@ public class Roles {
 
     public void setName(UserType name) {
         this.name = name;
-    }
-
-    public Set<UserDetails> getUserDetails() {
-        return userDetails;
-    }
-
-    public void setUserDetails(Set<UserDetails> userDetails) {
-        this.userDetails = userDetails;
     }
 }
