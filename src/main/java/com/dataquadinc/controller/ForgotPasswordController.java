@@ -60,7 +60,6 @@ public class ForgotPasswordController {
         }
     }
 
-    // Update Password
     @PostMapping("/update-password")
     public ResponseEntity<String> updatePassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
         String email = forgotPasswordDto.getEmail();
@@ -68,8 +67,19 @@ public class ForgotPasswordController {
         String confirmPassword = forgotPasswordDto.getConfirmPassword();
 
         // Validate the fields (check if they are not null or empty)
-        if (email == null || email.isEmpty() || updatePassword == null || confirmPassword == null || updatePassword.isEmpty() || confirmPassword.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and Update Password and Confirm Password cannot be null or empty");
+        // Validate Email
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email cannot be null or empty.");
+        }
+
+        // Validate Update Password
+        if (updatePassword == null || updatePassword.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update Password cannot be null or empty.");
+        }
+
+        // Validate Confirm Password
+        if (confirmPassword == null || confirmPassword.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Confirm Password cannot be null or empty.");
         }
 
         // Check if the password and confirm password match
@@ -77,9 +87,9 @@ public class ForgotPasswordController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password and Confirm Password do not match.");
         }
 
-        // Update the password
         try {
-            forgotPasswordService.updatePassword(email,updatePassword);
+            // Update the password in the service
+            forgotPasswordService.updatePassword(email, updatePassword);
             return ResponseEntity.ok("Password updated successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating password: " + e.getMessage());
