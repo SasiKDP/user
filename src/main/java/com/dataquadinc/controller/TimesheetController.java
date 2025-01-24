@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://192.168.0.140:3000")  // Specific to this controller
+@CrossOrigin(origins = "http://35.188.150.92") // Specific to this controller
 @RestController
 @RequestMapping("/api/timesheets")
 public class TimesheetController {
