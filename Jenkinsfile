@@ -4,7 +4,7 @@ pipeline {
 
     DOCKER_IMAGE_NAME = 'register'
 
-    registry = "sandycis476/dataquad"
+    registry = "sandycis476/userregister"
     dockerImage = ''
   }
 agent any
