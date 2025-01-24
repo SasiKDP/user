@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://192.168.0.140:3000")
+@CrossOrigin(origins = "http://35.188.150.92")
 // Allow all origins
 
 @RestController
