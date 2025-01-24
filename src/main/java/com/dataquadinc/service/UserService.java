@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,9 @@ public class UserService {
     private UserDao userDao;
 
     @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -37,27 +42,82 @@ public class UserService {
     @Autowired
     private RolesDao rolesDao;
 
-    public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
-
-        Map<String,String> errors = new HashMap<>();
-
-
-//        if (userDao.findByUserName(userDto.getUserName()) != null) {
+//    public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
 //
-//            errors.put("userName","userName already exists");
+//        Map<String,String> errors = new HashMap<>();
+//
+//
+////        if (userDao.findByUserName(userDto.getUserName()) != null) {
+////
+////            errors.put("userName","userName already exists");
+////        }
+//
+//        if (userDao.findByEmail(userDto.getEmail())!=null) {
+//            errors.put("errormessage","email is already in use");
 //        }
+//        if (userDao.findByUserId(userDto.getUserId())!=null) {
+//            errors.put("errorMessage","userId already exists");
+//        }
+//
+//        if( !errors.isEmpty()) {
+//            throw new ValidationException(errors);
+//        }
+//
+//
+//        // Encrypt the password
+//        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+//        userDto.setConfirmPassword(passwordEncoder.encode(userDto.getConfirmPassword()));
+//
+//        // Convert DTO to entity
+//        UserDetails user = userMapper.toEntity(userDto);
+//
+//        Set<Roles> roles = userDto.getRoles().stream()
+//                .map(role -> {
+//                    try {
+//                        return rolesDao.findByName(role) // Find Role by its name from RolesDao
+//                                .orElseThrow(() -> new ValidationException(Map.of("role","roleNotFound")));
+//                    } catch (ValidationException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                })
+//                .collect(Collectors.toSet());
+//
+//        user.setRoles(roles);
+//
+//        // Save the user to the database
+//        UserDetails dbUser = userDao.save(user);
+//
+//        UserResponse res=new UserResponse();
+//        res.setUserName(dbUser.getUserName());
+//        res.setUserId(dbUser.getUserId());
+//        res.setEmail(dbUser.getEmail());
+//        // Set success to true
+//
+//
+//        ResponseBean<UserResponse> resp = new ResponseBean<UserResponse>();
+//        resp.setSuccess(true);
+//        resp.setMessage(" Created Sucessfully");
+//        resp.setData(res);
+//        resp.setError(null);
+//
+//        return new ResponseEntity<ResponseBean<UserResponse>>(resp,HttpStatus.CREATED);
+//
+//    }
 
-        if (userDao.findByEmail(userDto.getEmail())!=null) {
-            errors.put("errormessage","email is already in use");
+    public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
+        Map<String, String> errors = new HashMap<>();
+
+        // Check if email or userId already exists
+        if (userDao.findByEmail(userDto.getEmail()) != null) {
+            errors.put("errormessage", "email is already in use");
         }
-        if (userDao.findByUserId(userDto.getUserId())!=null) {
-            errors.put("errorMessage","userId already exists");
+        if (userDao.findByUserId(userDto.getUserId()) != null) {
+            errors.put("errorMessage", "userId already exists");
         }
 
-        if( !errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }
-
 
         // Encrypt the password
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
@@ -66,11 +126,12 @@ public class UserService {
         // Convert DTO to entity
         UserDetails user = userMapper.toEntity(userDto);
 
+        // Map roles to the user
         Set<Roles> roles = userDto.getRoles().stream()
                 .map(role -> {
                     try {
                         return rolesDao.findByName(role) // Find Role by its name from RolesDao
-                                .orElseThrow(() -> new ValidationException(Map.of("role","roleNotFound")));
+                                .orElseThrow(() -> new ValidationException(Map.of("role", "roleNotFound")));
                     } catch (ValidationException e) {
                         throw new RuntimeException(e);
                     }
@@ -82,21 +143,45 @@ public class UserService {
         // Save the user to the database
         UserDetails dbUser = userDao.save(user);
 
-        UserResponse res=new UserResponse();
+        // Create a response object
+        UserResponse res = new UserResponse();
         res.setUserName(dbUser.getUserName());
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
-        // Set success to true
 
-        ResponseBean<UserResponse> resp = new ResponseBean<UserResponse>();
+        // Create and send registration success email
+        sendRegistrationConfirmationEmail(dbUser.getEmail());
+
+        // Prepare the response bean
+        ResponseBean<UserResponse> resp = new ResponseBean<>();
         resp.setSuccess(true);
-        resp.setMessage(" Created Sucessfully");
+        resp.setMessage("Created Successfully");
         resp.setData(res);
         resp.setError(null);
 
-        return new ResponseEntity<ResponseBean<UserResponse>>(resp,HttpStatus.CREATED);
-
+        return new ResponseEntity<>(resp, HttpStatus.CREATED);
     }
+
+    // Method to send the registration confirmation email
+    private void sendRegistrationConfirmationEmail(String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Registration Successful");
+        message.setText("Your registration has been successfully completed. Welcome to our platform!");
+
+        try {
+            mailSender.send(message);
+            System.out.println("Registration confirmation email sent to " + email);
+        } catch (Exception e) {
+            System.out.println("Error sending registration confirmation email to " + email);
+            e.printStackTrace();
+            throw new RuntimeException("Error sending registration confirmation email: " + e.getMessage());
+        }
+    }
+
+
+
+
     public ResponseEntity<Set<Roles>> getRolesByUserId( String UserId ) {
         UserDetails user = userDao.findByUserId(UserId);
         Set<Roles> roles = user.getRoles();
