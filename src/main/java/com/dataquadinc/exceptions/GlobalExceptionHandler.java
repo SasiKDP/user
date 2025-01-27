@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
         errorDetails.put("errormessage", errorMessage);
 
         // Return a response with a BAD_REQUEST status
-        return buildErrorResponse(false, "Validation failed", null, errorDetails, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(false, "Validation failed", null, errorDetails, HttpStatus.OK);
     }
 
     // Handle MethodArgumentNotValidException
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         });
 
         // Returning a BAD_REQUEST status with the validation errors
-        return buildErrorResponse(false, "Validation error", errors, null, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(false, "Validation error", errors, null, HttpStatus.OK);
     }
 
     // Handle custom InvalidUserException

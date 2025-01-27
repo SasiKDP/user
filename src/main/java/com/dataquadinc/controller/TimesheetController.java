@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://35.188.150.92") // Specific to this controller
+
+//@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000"})
+
 @RestController
 @RequestMapping("/api/timesheets")
 public class TimesheetController {
