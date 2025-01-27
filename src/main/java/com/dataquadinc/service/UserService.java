@@ -112,7 +112,7 @@ public class UserService {
             errors.put("errormessage", "email is already in use");
         }
         if (userDao.findByUserId(userDto.getUserId()) != null) {
-            errors.put("errorMessage", "userId already exists");
+            errors.put("errorMessage", "userId already exists.Please log in");
         }
 
         if (!errors.isEmpty()) {
