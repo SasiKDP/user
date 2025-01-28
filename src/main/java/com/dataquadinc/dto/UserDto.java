@@ -1,7 +1,6 @@
 package com.dataquadinc.dto;
 
 
-
 import com.dataquadinc.model.UserType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
@@ -72,12 +71,6 @@ public class UserDto {
 
 
         private Set<UserType> roles;
-
-        private String status;
-
-    public UserDto() {
-        this.status = "ACTIVE";  // Default value for status
-    }
 
     public @Size(max = 8, message = "User ID must be between 5 and 20 characters") String getUserId() {
         return userId;
@@ -176,13 +169,5 @@ public class UserDto {
 
     public void setRoles(Set<UserType> roles) {
         this.roles = roles;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status.toUpperCase();
     }
 }

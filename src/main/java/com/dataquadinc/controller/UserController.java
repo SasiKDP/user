@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.management.relation.RoleNotFoundException;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -49,18 +48,5 @@ public class UserController {
 
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
-
-    @PutMapping("/update/{userId}")
-    public ResponseEntity<ResponseBean<UserResponse>> updateUser(@PathVariable String userId, @Valid @RequestBody UserDto userDto) throws RoleNotFoundException {
-        return userService.updateUser(userId, userDto);
-    }
-
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<ResponseBean<UserResponse>> deleteUser(@PathVariable String userId) {
-
-            return userService.deleteUser(userId);
-
-    }
-
 
 }
