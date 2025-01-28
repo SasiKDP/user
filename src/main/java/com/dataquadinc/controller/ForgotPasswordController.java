@@ -1,17 +1,12 @@
 package com.dataquadinc.controller;
 
 import com.dataquadinc.dto.ForgotPasswordDto;
+import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.service.ForgotPasswordService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-@CrossOrigin(origins = "http://35.188.150.92")
-// Allow all origins
-
-//@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000"})
 
 @RestController
 @RequestMapping("/users")
@@ -21,80 +16,75 @@ public class ForgotPasswordController {
     private ForgotPasswordService forgotPasswordService;
 
     // Forgot Password (Generate OTP)
-
     @PostMapping("/send-otp")
-
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
+    public ResponseEntity<ForgotResponseDto> forgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
         String email = forgotPasswordDto.getEmail();
         System.out.println("Received email: " + email);
 
         // Validate email
         if (email == null || email.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email cannot be null or empty");
+            return ResponseEntity.badRequest().body(new ForgotResponseDto(false, "Email cannot be null or empty", "Invalid email"));
         }
 
         // Generate OTP
         try {
-            String otp = forgotPasswordService.generateOtp(email);
-            forgotPasswordDto.setOtp(otp);  // Store the OTP in the DTO
-            return ResponseEntity.ok("OTP sent successfully. Please check your email.");
+            ForgotResponseDto response = forgotPasswordService.generateOtp(email);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating OTP: " + e.getMessage());
+            return ResponseEntity.status(500).body(new ForgotResponseDto(false, "Error generating OTP", e.getMessage()));
         }
     }
 
     // Verify OTP
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestBody ForgotPasswordDto forgotPasswordDto) {
+    public ResponseEntity<ForgotResponseDto> verifyOtp(@RequestBody ForgotPasswordDto forgotPasswordDto) {
         String email = forgotPasswordDto.getEmail();
         String otp = forgotPasswordDto.getOtp();
 
         if (email == null || otp == null || email.isEmpty() || otp.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and OTP are required");
+            return ResponseEntity.badRequest().body(new ForgotResponseDto(false, "Email and OTP are required", "Missing fields"));
         }
 
         // Verify OTP
-        boolean isOtpValid = forgotPasswordService.verifyOtp(email, otp);
-        if (isOtpValid) {
-            return ResponseEntity.ok("OTP verified successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP. Please try again.");
+        try {
+            ForgotResponseDto response = forgotPasswordService.verifyOtp(email, otp);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ForgotResponseDto(false, "Error verifying OTP", e.getMessage()));
         }
     }
 
+    // Update Password
     @PostMapping("/update-password")
-    public ResponseEntity<String> updatePassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
+    public ResponseEntity<ForgotResponseDto> updatePassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
         String email = forgotPasswordDto.getEmail();
         String updatePassword = forgotPasswordDto.getUpdatePassword();
         String confirmPassword = forgotPasswordDto.getConfirmPassword();
 
         // Validate the fields (check if they are not null or empty)
-        // Validate Email
         if (email == null || email.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email cannot be null or empty.");
+            return ResponseEntity.badRequest().body(new ForgotResponseDto(false, "Email cannot be null or empty", "Invalid email"));
         }
 
-        // Validate Update Password
         if (updatePassword == null || updatePassword.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update Password cannot be null or empty.");
+            return ResponseEntity.badRequest().body(new ForgotResponseDto(false, "Update Password cannot be null or empty", "Missing update password"));
         }
 
-        // Validate Confirm Password
         if (confirmPassword == null || confirmPassword.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Confirm Password cannot be null or empty.");
+            return ResponseEntity.badRequest().body(new ForgotResponseDto(false, "Confirm Password cannot be null or empty", "Missing confirm password"));
         }
 
         // Check if the password and confirm password match
         if (!updatePassword.equals(confirmPassword)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password and Confirm Password do not match.");
+            return ResponseEntity.badRequest().body(new ForgotResponseDto(false, "Password and Confirm Password do not match", "Passwords mismatch"));
         }
 
         try {
             // Update the password in the service
-            forgotPasswordService.updatePassword(email, updatePassword);
-            return ResponseEntity.ok("Password updated successfully.");
+            ForgotResponseDto response = forgotPasswordService.updatePassword(email, updatePassword);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating password: " + e.getMessage());
+            return ResponseEntity.status(500).body(new ForgotResponseDto(false, "Error updating password", e.getMessage()));
         }
     }
 }

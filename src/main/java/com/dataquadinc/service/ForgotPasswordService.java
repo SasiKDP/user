@@ -1,5 +1,6 @@
 package com.dataquadinc.service;
 
+import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.Random;
 
 @Service
 public class ForgotPasswordService {
+
     @Autowired
     private UserDao userDao;
 
@@ -23,10 +25,10 @@ public class ForgotPasswordService {
     private final Map<String, String> otpStorage = new HashMap<>();
 
     // OTP Generation and Storage
-    public String generateOtp(String email) {
+    public ForgotResponseDto generateOtp(String email) {
         UserDetails user = userDao.findByEmail(email);
-        if(user == null){
-            throw new RuntimeException("User not found with email: " + email);
+        if (user == null) {
+            return new ForgotResponseDto(false, "User not found with email: " + email, "User does not exist.");
         }
 
         // Generate a 6-digit OTP
@@ -38,8 +40,7 @@ public class ForgotPasswordService {
         // Send OTP to user's email
         sendOtpToEmail(email, otp);
 
-        System.out.println("OTP sent to " + email + ": " + otp);
-        return otp;
+        return new ForgotResponseDto(true, "OTP sent successfully. Please check your email.", null);
     }
 
     private void sendOtpToEmail(String email, String otp) {
@@ -47,65 +48,39 @@ public class ForgotPasswordService {
         message.setTo(email);
         message.setSubject("Your OTP for password reset");
         message.setText("Your OTP for password reset is: " + otp);
-        // message.setFrom(email); // Change this to your email address
 
         try {
             mailSender.send(message);
-            System.out.println("OTP sent to " + email);
         } catch (Exception e) {
-            System.out.println("Error sending to " + email);
             throw new RuntimeException("Error sending OTP email: " + e.getMessage());
         }
     }
 
-
-    public boolean verifyOtp(String email, String otp) {
+    public ForgotResponseDto verifyOtp(String email, String otp) {
         // Retrieve OTP from memory storage
         String storedOtp = otpStorage.get(email);
         if (storedOtp == null) {
-            throw new RuntimeException("OTP has expired or does not exist.");
+            return new ForgotResponseDto(false, "OTP has expired or does not exist.", "OTP is expired or missing.");
         }
 
         // Compare the OTPs
-        return storedOtp.equals(otp);
+        if (storedOtp.equals(otp)) {
+            return new ForgotResponseDto(true, "OTP verified successfully.", null);
+        } else {
+            return new ForgotResponseDto(false, "Invalid OTP. Please try again.", "Invalid OTP.");
+        }
     }
 
-//    public void updatePassword(String email, String updatePassword) {
-//        // Fetch user details from the database by email
-//        UserDetails user = userDao.findByEmail(email);
-//        if (user == null) {
-//            throw new RuntimeException("User not found with email: " + email);
-//        }
-//
-//        // Check if the new password is the same as the current one
-//        if (BCrypt.checkpw(updatePassword, user.getPassword())) {
-//            throw new RuntimeException("The new password cannot be the same as the previous password.");
-//        }
-//
-//        // Hash the new password
-//        String hashedPassword = BCrypt.hashpw(updatePassword, BCrypt.gensalt());
-//
-//        // Update the user's password in the database
-//        user.setPassword(hashedPassword);
-//        userDao.save(user);
-//
-//        System.out.println("Password updated successfully for " + email);
-//
-//    }
-
-    public void updatePassword(String email, String updatePassword) {
-
-
-
+    public ForgotResponseDto updatePassword(String email, String updatePassword) {
         // Fetch user details from the database by email
         UserDetails user = userDao.findByEmail(email);
         if (user == null) {
-            throw new RuntimeException("User not found with email: " + email);
+            return new ForgotResponseDto(false, "User not found with email: " + email, "User does not exist.");
         }
 
         // Check if the new password is the same as the current one
         if (BCrypt.checkpw(updatePassword, user.getPassword())) {
-            throw new RuntimeException("The new password cannot be the same as the previous password.");
+            return new ForgotResponseDto(false, "The new password cannot be the same as the previous password.", "New password matches the old one.");
         }
 
         // Hash the new password
@@ -115,13 +90,13 @@ public class ForgotPasswordService {
         user.setPassword(hashedPassword);
         userDao.save(user);
 
-        System.out.println("Password updated successfully for " + email);
-
-        // Step 6: Clear the OTP after successful password change
+        // Clear the OTP after successful password change
         otpStorage.remove(email);
 
         // Send confirmation email
         sendPasswordUpdateConfirmationEmail(email);
+
+        return new ForgotResponseDto(true, "Password updated successfully.", null);
     }
 
     private void sendPasswordUpdateConfirmationEmail(String email) {
@@ -133,15 +108,8 @@ public class ForgotPasswordService {
 
         try {
             mailSender.send(message);
-            System.out.println("Password update confirmation email sent to " + email);
         } catch (Exception e) {
-            System.out.println("Error sending confirmation email to " + email);
             throw new RuntimeException("Error sending confirmation email: " + e.getMessage());
         }
     }
-
-
-
-
-
 }
