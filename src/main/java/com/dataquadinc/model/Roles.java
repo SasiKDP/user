@@ -1,5 +1,7 @@
 package com.dataquadinc.model;
 
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,6 +10,7 @@ import java.util.Set;
 
 @Entity
 @Data
+
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +19,10 @@ public class Roles {
 
     @Column(unique = true, nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserType name;  //  (e.g., "Admin", "Manager", "Employee")
+    private UserType name;//  (e.g., "Admin", "Manager", "Employee")
+
+
+
 
     public Long getId() {
         return id;
