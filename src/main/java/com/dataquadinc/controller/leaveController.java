@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLOutput;
 import java.util.List;
-@CrossOrigin(origins = "http://35.188.150.92")
 
-//@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000"})
+@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000"})
 
 @RestController
 @RequestMapping("/users")
