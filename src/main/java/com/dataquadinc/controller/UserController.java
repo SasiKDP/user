@@ -18,13 +18,12 @@ import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.Set;
 
-<<<<<<< Updated upstream
-=======
+
 //@CrossOrigin(origins = "http://35.188.150.92")
 ////@CrossOrigin(origins = "http://192.168.0.139:3000")
 ////git status
 
->>>>>>> Stashed changes
+
 
 @CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000"})
 @RestController
