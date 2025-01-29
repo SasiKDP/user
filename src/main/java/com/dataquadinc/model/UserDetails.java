@@ -85,6 +85,8 @@ public class UserDetails {
     )
 
     private Set<Roles> roles = new HashSet<>();
+    private String status;
+
 
     public String getUserId() {
         return userId;
@@ -204,5 +206,13 @@ public class UserDetails {
 
     public void setRoles(Set<Roles> roles) {
         this.roles = roles;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status.toUpperCase();
     }
 }

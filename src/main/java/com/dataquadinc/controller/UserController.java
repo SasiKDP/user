@@ -18,6 +18,13 @@ import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.Set;
 
+<<<<<<< Updated upstream
+=======
+//@CrossOrigin(origins = "http://35.188.150.92")
+////@CrossOrigin(origins = "http://192.168.0.139:3000")
+////git status
+
+>>>>>>> Stashed changes
 
 @CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000"})
 @RestController
@@ -46,6 +53,18 @@ public class UserController {
         }
 
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
+    }
+
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<ResponseBean<UserResponse>> updateUser(@PathVariable String userId, @Valid @RequestBody UserDto userDto) throws RoleNotFoundException {
+        return userService.updateUser(userId, userDto);
+    }
+
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<ResponseBean<UserResponse>> deleteUser(@PathVariable String userId) {
+
+        return userService.deleteUser(userId);
+
     }
 
 }

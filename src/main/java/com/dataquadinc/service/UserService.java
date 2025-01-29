@@ -178,10 +178,6 @@ public class UserService {
             throw new RuntimeException("Error sending registration confirmation email: " + e.getMessage());
         }
     }
-
-
-
-
     public ResponseEntity<Set<Roles>> getRolesByUserId( String UserId ) {
         UserDetails user = userDao.findByUserId(UserId);
         Set<Roles> roles = user.getRoles();
@@ -244,7 +240,14 @@ public class UserService {
                             user.getUserName(),
                             // Set user name
                             roleName  ,
-                            user.getEmail()// Set role name as a simple string
+                            user.getEmail(),
+                            user.getDesignation(),
+                            user.getJoiningDate(),
+                            user.getGender(),
+                            user.getDob(),
+                            user.getPhoneNumber(),
+                            user.getPersonalemail(),
+                            user.getStatus()// Set role/ Set role name as a simple string
                     );
                 })
                 .collect(Collectors.toList());
@@ -252,6 +255,197 @@ public class UserService {
         // Return the list of EmployeeWithRole objects with an OK response status
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
+
+//    public ResponseEntity<ResponseBean<UserResponse>> updateUser(String userId, UserDto userDto) {
+//        Map<String, String> errors = new HashMap<>();
+//
+//        // Check if the user exists
+//        UserDetails existingUser = userDao.findByUserId(userId);
+//        if (existingUser == null) {
+//            ResponseBean<UserResponse> resp = new ResponseBean<>();
+//            resp.setSuccess(false);
+//            resp.setMessage("User not found");
+//            return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
+//        }
+//
+//        if (userDto.getUserName() == null || userDto.getUserName().isEmpty()) {
+//            errors.put("userName", "User name is required and cannot be null or empty");
+//            ResponseBean<UserResponse> resp = new ResponseBean<>();
+//            resp.setSuccess(false);
+//            resp.setMessage("Validation failed");
+//            return new ResponseEntity<>(resp, HttpStatus.BAD_REQUEST);
+//
+//
+//            // Check if personalemail is provided and valid
+//            if (userDto.getPersonalemail() == null || userDto.getPersonalemail().isEmpty()) {
+//                errors.put("personalemail", "Personal email is required and cannot be null or empty");
+//                ResponseBean<UserResponse> resp = new ResponseBean<>();
+//                resp.setSuccess(false);
+//                resp.setMessage("Validation failed");
+//                return new ResponseEntity<>(resp, HttpStatus.BAD_REQUEST);
+//            }
+//
+//        // Update the details (for example, the email, user name, etc.)
+//        existingUser.setUserName(userDto.getUserName());
+//        existingUser.setEmail(userDto.getEmail());
+//        existingUser.setStatus(userDto.getStatus());
+//        existingUser.setGender(userDto.getGender());
+//        existingUser.setDesignation(userDto.getDesignation());
+//        existingUser.setDob(userDto.getDob());
+//        existingUser.setPersonalemail(userDto.getPersonalemail());  // Ensure this is not null or empty
+//        existingUser.setJoiningDate(userDto.getJoiningDate());
+//        existingUser.setPhoneNumber(userDto.getPhoneNumber());
+//
+//        // If password is provided, encode it and update it
+//        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+//            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+//        }
+//
+//        // Handle roles update
+//        Set<Roles> roles = userDto.getRoles().stream()
+//                .map(role -> {
+//                    try {
+//                        return rolesDao.findByName(role)
+//                                .orElseThrow(() -> new ValidationException(Map.of("role", "roleNotFound")));
+//                    } catch (ValidationException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                })
+//                .collect(Collectors.toSet());
+//        existingUser.setRoles(roles);
+//
+//        // Save the updated user
+//        UserDetails updatedUser = userDao.save(existingUser);
+//        System.out.println("Saved UserName: " + updatedUser.getUserName());
+//
+//        // Prepare response
+//        UserResponse userResponse = new UserResponse();
+//        userResponse.setUserName(updatedUser.getUserName());
+//        userResponse.setUserId(updatedUser.getUserId());
+//        userResponse.setEmail(updatedUser.getEmail());
+//
+//        // Prepare the response bean
+//        ResponseBean<UserResponse> responseBean = new ResponseBean<>();
+//        responseBean.setSuccess(true);
+//        responseBean.setMessage("User updated successfully");
+//        responseBean.setData(userResponse);
+//        responseBean.setError(null);
+//
+//        return new ResponseEntity<>(responseBean, HttpStatus.OK);
+//    }
+
+
+    public ResponseEntity<ResponseBean<UserResponse>> updateUser(String userId, UserDto userDto) {
+        Map<String, String> errors = new HashMap<>();
+
+        // Check if the user exists
+        UserDetails existingUser = userDao.findByUserId(userId);
+        if (existingUser == null) {
+            ResponseBean<UserResponse> resp = new ResponseBean<>();
+            resp.setSuccess(false);
+            resp.setMessage("User not found");
+            return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
+        }
+
+        // Check if userName is provided and valid
+        if (userDto.getUserName() == null || userDto.getUserName().isEmpty()) {
+            errors.put("userName", "User name is required and cannot be null or empty");
+        }
+
+        // Check if personalemail is provided and valid
+        if (userDto.getPersonalemail() == null || userDto.getPersonalemail().isEmpty()) {
+            errors.put("personalemail", "Personal email is required and cannot be null or empty");
+        }
+
+        if (!errors.isEmpty()) {
+            ResponseBean<UserResponse> resp = new ResponseBean<>();
+            resp.setSuccess(false);
+            resp.setMessage("Validation failed");
+            return new ResponseEntity<>(resp, HttpStatus.BAD_REQUEST);
+        }
+
+        // Update the details (for example, the email, user name, etc.)
+        existingUser.setUserName(userDto.getUserName());
+        existingUser.setEmail(userDto.getEmail());
+        existingUser.setStatus(userDto.getStatus());
+        existingUser.setGender(userDto.getGender());
+        existingUser.setDesignation(userDto.getDesignation());
+        existingUser.setDob(userDto.getDob());
+        existingUser.setPersonalemail(userDto.getPersonalemail());  // Ensure this is not null or empty
+        existingUser.setJoiningDate(userDto.getJoiningDate());
+        existingUser.setPhoneNumber(userDto.getPhoneNumber());
+
+        // If password is provided, encode it and update it
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
+
+        // Handle roles update
+        Set<Roles> roles = userDto.getRoles().stream()
+                .map(role -> {
+                    try {
+                        return rolesDao.findByName(role)
+                                .orElseThrow(() -> new ValidationException(Map.of("role", "roleNotFound")));
+                    } catch (ValidationException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toSet());
+        existingUser.setRoles(roles);
+
+        // Save the updated user
+        UserDetails updatedUser = userDao.save(existingUser);
+        System.out.println("Saved UserName: " + updatedUser.getUserName());
+
+        // Prepare response
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUserName(updatedUser.getUserName());
+        userResponse.setUserId(updatedUser.getUserId());
+        userResponse.setEmail(updatedUser.getEmail());
+
+        // Prepare the response bean
+        ResponseBean<UserResponse> responseBean = new ResponseBean<>();
+        responseBean.setSuccess(true);
+        responseBean.setMessage("User updated successfully");
+        responseBean.setData(userResponse);
+        responseBean.setError(null);
+
+        return new ResponseEntity<>(responseBean, HttpStatus.OK);
+    }
+
+    public ResponseEntity<ResponseBean<UserResponse>> deleteUser(String userId) {
+        // Check if the user exists
+        UserDetails user = userDao.findByUserId(userId);
+        if (user == null) {
+            ResponseBean<UserResponse> response = new ResponseBean<>();
+            response.setSuccess(false);
+            response.setMessage("User not found");
+            response.setData(null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUserId(user.getUserId());
+        userResponse.setUserName(user.getUserName());
+        userResponse.setEmail(user.getEmail());
+
+        // Delete the user from the database
+        userDao.delete(user);
+
+
+
+        // Prepare the response
+        ResponseBean<UserResponse> response = new ResponseBean<>();
+        response.setSuccess(true);
+        response.setMessage("User deleted successfully");
+        response.setData(userResponse);
+        response.setError(null);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
 
 
 
