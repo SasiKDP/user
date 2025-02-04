@@ -1,7 +1,7 @@
 package com.dataquadinc.service;
 
 import com.dataquadinc.dto.ForgotResponseDto;
-import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.model.UserDetails_prod;
 import com.dataquadinc.repository.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -26,7 +26,7 @@ public class ForgotPasswordService {
 
     // OTP Generation and Storage
     public ForgotResponseDto generateOtp(String email) {
-        UserDetails user = userDao.findByEmail(email);
+        UserDetails_prod user = userDao.findByEmail(email);
         if (user == null) {
             return new ForgotResponseDto(false, "User not found with email: " + email, "User does not exist.");
         }
@@ -73,7 +73,7 @@ public class ForgotPasswordService {
 
     public ForgotResponseDto updatePassword(String email, String updatePassword) {
         // Fetch user details from the database by email
-        UserDetails user = userDao.findByEmail(email);
+        UserDetails_prod user = userDao.findByEmail(email);
         if (user == null) {
             return new ForgotResponseDto(false, "User not found with email: " + email, "User does not exist.");
         }

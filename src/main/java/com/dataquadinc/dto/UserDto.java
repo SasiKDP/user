@@ -1,7 +1,7 @@
 package com.dataquadinc.dto;
 
 
-import com.dataquadinc.model.UserType;
+import com.dataquadinc.model.UserType_prod;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
@@ -70,7 +70,7 @@ public class UserDto {
         private String designation;
 
 
-        private Set<UserType> roles;
+        private Set<UserType_prod> roles;
 
     private String status;
 
@@ -169,11 +169,11 @@ public class UserDto {
         this.designation = designation;
     }
 
-    public Set<UserType> getRoles() {
+    public Set<UserType_prod> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<UserType> roles) {
+    public void setRoles(Set<UserType_prod> roles) {
         this.roles = roles;
     }
 

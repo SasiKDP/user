@@ -3,7 +3,7 @@ package com.dataquadinc.model;
 import jakarta.persistence.*;
 
 @Entity
-public class Timesheet {
+public class Timesheet_prod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,12 +20,12 @@ public class Timesheet {
     private String status;
 
     // Default Constructor
-    public Timesheet() {
+    public Timesheet_prod() {
     }
 
     // Parameterized Constructor without logoutTime
-    public Timesheet(String employeeId, String clockIn, String clockOut, String date, String late,
-                     String earlyLeaving, String overtime, String status) {
+    public Timesheet_prod(String employeeId, String clockIn, String clockOut, String date, String late,
+                          String earlyLeaving, String overtime, String status) {
         this.employeeId = employeeId;
         this.clockIn = clockIn;
         this.clockOut = clockOut;
