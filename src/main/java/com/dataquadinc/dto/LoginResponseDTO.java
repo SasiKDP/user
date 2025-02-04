@@ -1,9 +1,7 @@
 package com.dataquadinc.dto;
 
-import com.dataquadinc.model.UserType;  // Correct import
-import lombok.AllArgsConstructor;
+import com.dataquadinc.model.UserType_prod;  // Correct import
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -51,11 +49,11 @@ public class LoginResponseDTO {
 
     public static class Payload {
         private String userId;
-        private UserType roleType;  // Usage of UserType
+        private UserType_prod roleType;  // Usage of UserType
         private LocalDateTime loginTimestamp;
 
         // Add a constructor to accept these parameters
-        public Payload(String userId, UserType roleType, LocalDateTime loginTimestamp) {
+        public Payload(String userId, UserType_prod roleType, LocalDateTime loginTimestamp) {
             this.userId = userId;
             this.roleType = roleType;
             this.loginTimestamp = loginTimestamp;

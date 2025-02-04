@@ -2,7 +2,7 @@ package com.dataquadinc.service;
 
 import com.dataquadinc.dto.LogoutResponseDTO;
 import com.dataquadinc.dto.Payload;
-import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.model.UserDetails_prod;
 import com.dataquadinc.repository.UserDao;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +34,7 @@ public class LogoutService {
     }
 
     private boolean processLogout(String userId) {
-        UserDetails userDetails = userDao.findByUserId(userId);
+        UserDetails_prod userDetails = userDao.findByUserId(userId);
         return userDetails != null;
     }
 }

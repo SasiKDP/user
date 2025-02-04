@@ -2,7 +2,7 @@ package com.dataquadinc.service;
 
 
 import com.dataquadinc.exceptions.EmployeeAlreadyLoggedInException;
-import com.dataquadinc.model.Timesheet;
+import com.dataquadinc.model.Timesheet_prod;
 import com.dataquadinc.repository.TimesheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,13 +18,13 @@ public class TimesheetService {
     @Autowired
     private TimesheetRepository timesheetRepository;
 
-    public Timesheet logIn(String employeeId) {
-        Timesheet existingTimesheet = timesheetRepository.findByEmployeeIdAndDate(employeeId, LocalDate.now().toString());
+    public Timesheet_prod logIn(String employeeId) {
+        Timesheet_prod existingTimesheet = timesheetRepository.findByEmployeeIdAndDate(employeeId, LocalDate.now().toString());
         if (existingTimesheet != null) {
             throw new EmployeeAlreadyLoggedInException(employeeId);
         }
 
-        Timesheet timesheet = new Timesheet();
+        Timesheet_prod timesheet = new Timesheet_prod();
         timesheet.setEmployeeId(employeeId);
         LocalTime clockInTime = LocalTime.now();
         timesheet.setClockIn(formatTime(clockInTime));
@@ -35,8 +35,8 @@ public class TimesheetService {
         return timesheetRepository.save(timesheet);
     }
 
-    public Timesheet logOut(String employeeId) {
-        Timesheet timesheet = timesheetRepository.findByEmployeeIdAndClockOutIsNull(employeeId);
+    public Timesheet_prod logOut(String employeeId) {
+        Timesheet_prod timesheet = timesheetRepository.findByEmployeeIdAndClockOutIsNull(employeeId);
 
         if (timesheet == null) {
             throw new RuntimeException("No active session found for employee: " + employeeId);
@@ -50,7 +50,7 @@ public class TimesheetService {
         return timesheetRepository.save(timesheet);
     }
 
-    public List<Timesheet> getAllTimesheets() {
+    public List<Timesheet_prod> getAllTimesheets() {
         return timesheetRepository.findAll();
     }
 
@@ -90,7 +90,7 @@ public class TimesheetService {
         }
         return "00:00";
     }
-    public List<Timesheet> getTimesheetsByEmployeeId(String employeeId) {
+    public List<Timesheet_prod> getTimesheetsByEmployeeId(String employeeId) {
         return timesheetRepository.findByEmployeeId(employeeId);
     }
 

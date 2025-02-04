@@ -2,7 +2,7 @@ package com.dataquadinc.controller;
 
 
 
-import com.dataquadinc.model.Timesheet;
+import com.dataquadinc.model.Timesheet_prod;
 import com.dataquadinc.service.TimesheetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class TimesheetController {
     private TimesheetService timesheetService;
 
     @PostMapping("/login")
-    public Timesheet logIn(@RequestBody Map<String, String> request) {
+    public Timesheet_prod logIn(@RequestBody Map<String, String> request) {
         String employeeId = request.get("employeeId");
         return timesheetService.logIn(employeeId);
     }
@@ -30,7 +30,7 @@ public class TimesheetController {
     @PutMapping("/logout/{employeeId}")
     public ResponseEntity<?> logOut(@PathVariable String employeeId) {
         try {
-            Timesheet updatedTimesheet = timesheetService.logOut(employeeId);
+            Timesheet_prod updatedTimesheet = timesheetService.logOut(employeeId);
             return ResponseEntity.ok(updatedTimesheet);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
@@ -41,14 +41,14 @@ public class TimesheetController {
     }
 
     @GetMapping
-    public List<Timesheet> getAllTimesheets() {
+    public List<Timesheet_prod> getAllTimesheets() {
         return timesheetService.getAllTimesheets();
     }
 
     // New endpoint to get timesheets for a specific employee
     @GetMapping("/{employeeId}")
     public ResponseEntity<?> getEmployeeTimesheets(@PathVariable String employeeId) {
-        List<Timesheet> employeeTimesheets = timesheetService.getTimesheetsByEmployeeId(employeeId);
+        List<Timesheet_prod> employeeTimesheets = timesheetService.getTimesheetsByEmployeeId(employeeId);
         if (employeeTimesheets.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                     "status", "error",

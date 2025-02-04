@@ -7,14 +7,12 @@ import com.dataquadinc.dto.UserResponse;
 import com.dataquadinc.exceptions.ValidationException;
 import com.dataquadinc.mapper.UserMapper;
 import com.dataquadinc.dto.ResponseBean;
-import com.dataquadinc.model.Roles;
-import com.dataquadinc.model.UserDetails;
-import com.dataquadinc.model.UserType;
+import com.dataquadinc.model.Roles_prod;
+import com.dataquadinc.model.UserDetails_prod;
 import com.dataquadinc.repository.RolesDao;
 import com.dataquadinc.repository.UserDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -124,10 +122,10 @@ public class UserService {
         userDto.setConfirmPassword(passwordEncoder.encode(userDto.getConfirmPassword()));
 
         // Convert DTO to entity
-        UserDetails user = userMapper.toEntity(userDto);
+        UserDetails_prod user = userMapper.toEntity(userDto);
 
         // Map roles to the user
-        Set<Roles> roles = userDto.getRoles().stream()
+        Set<Roles_prod> roles = userDto.getRoles().stream()
                 .map(role -> {
                     try {
                         return rolesDao.findByName(role) // Find Role by its name from RolesDao
@@ -141,7 +139,7 @@ public class UserService {
         user.setRoles(roles);
 
         // Save the user to the database
-        UserDetails dbUser = userDao.save(user);
+        UserDetails_prod dbUser = userDao.save(user);
 
         // Create a response object
         UserResponse res = new UserResponse();
@@ -178,9 +176,9 @@ public class UserService {
             throw new RuntimeException("Error sending registration confirmation email: " + e.getMessage());
         }
     }
-    public ResponseEntity<Set<Roles>> getRolesByUserId( String UserId ) {
-        UserDetails user = userDao.findByUserId(UserId);
-        Set<Roles> roles = user.getRoles();
+    public ResponseEntity<Set<Roles_prod>> getRolesByUserId(String UserId ) {
+        UserDetails_prod user = userDao.findByUserId(UserId);
+        Set<Roles_prod> roles = user.getRoles();
         return  ResponseEntity.ok(roles);
 
     }
@@ -217,7 +215,7 @@ public class UserService {
 
     public ResponseEntity<List<EmployeeWithRole>> getAllEmployeesWithRoles() {
         // Fetch all users from the database
-        List<UserDetails> users = userDao.findAll();
+        List<UserDetails_prod> users = userDao.findAll();
 
         // If no users are found, return a No Content response
         if (users.isEmpty()) {
@@ -339,7 +337,7 @@ public class UserService {
         Map<String, String> errors = new HashMap<>();
 
         // Check if the user exists
-        UserDetails existingUser = userDao.findByUserId(userId);
+        UserDetails_prod existingUser = userDao.findByUserId(userId);
         if (existingUser == null) {
             ResponseBean<UserResponse> resp = new ResponseBean<>();
             resp.setSuccess(false);
@@ -381,7 +379,7 @@ public class UserService {
         }
 
         // Handle roles update
-        Set<Roles> roles = userDto.getRoles().stream()
+        Set<Roles_prod> roles = userDto.getRoles().stream()
                 .map(role -> {
                     try {
                         return rolesDao.findByName(role)
@@ -394,7 +392,7 @@ public class UserService {
         existingUser.setRoles(roles);
 
         // Save the updated user
-        UserDetails updatedUser = userDao.save(existingUser);
+        UserDetails_prod updatedUser = userDao.save(existingUser);
         System.out.println("Saved UserName: " + updatedUser.getUserName());
 
         // Prepare response
@@ -415,7 +413,7 @@ public class UserService {
 
     public ResponseEntity<ResponseBean<UserResponse>> deleteUser(String userId) {
         // Check if the user exists
-        UserDetails user = userDao.findByUserId(userId);
+        UserDetails_prod user = userDao.findByUserId(userId);
         if (user == null) {
             ResponseBean<UserResponse> response = new ResponseBean<>();
             response.setSuccess(false);
