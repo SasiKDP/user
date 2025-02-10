@@ -1,6 +1,7 @@
 package com.dataquadinc.exceptions;
 
 import com.dataquadinc.dto.ErrorResponseBean;
+import com.dataquadinc.dto.LoginResponseDTO;
 import com.dataquadinc.dto.TimesheetResponseBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -86,5 +87,52 @@ public class GlobalExceptionHandler {
 
         // Return the response
         return new ResponseEntity<>(responseBean, HttpStatus.BAD_REQUEST);
+    }
+    // Handle Invalid Credentials Exception (returns 401 Unauthorized)
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<LoginResponseDTO> handleInvalidCredentials(InvalidCredentialsException e) {
+        LoginResponseDTO errorResponse = new LoginResponseDTO(
+                false,
+                "Unsuccessful",
+                null,
+                new LoginResponseDTO.ErrorDetails("300", e.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    // Handle User Already Logged In Exception (returns 400 Bad Request)
+    @ExceptionHandler(UserAlreadyLoggedInException.class)
+    public ResponseEntity<LoginResponseDTO> handleUserAlreadyLoggedIn(UserAlreadyLoggedInException e) {
+        LoginResponseDTO errorResponse = new LoginResponseDTO(
+                false,
+                "Unsuccessful",
+                null,
+                new LoginResponseDTO.ErrorDetails("201", e.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(errorResponse);
+    }
+
+    // Handle User Not Found Exception (returns 404 Not Found)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<LoginResponseDTO> handleUserNotFound(UserNotFoundException e) {
+        LoginResponseDTO errorResponse = new LoginResponseDTO(
+                false,
+                "Unsuccessful",
+                null,
+                new LoginResponseDTO.ErrorDetails("404", e.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    // Handle any other exceptions (return 500 Internal Server Error)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<LoginResponseDTO> handleGeneralException(Exception e) {
+        LoginResponseDTO errorResponse = new LoginResponseDTO(
+                false,
+                "Unsuccessful",
+                null,
+                new LoginResponseDTO.ErrorDetails("500", "An unexpected error occurred: " + e.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
