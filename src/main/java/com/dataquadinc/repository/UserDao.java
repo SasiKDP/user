@@ -9,7 +9,7 @@ import  java.util.*;
 public interface UserDao extends JpaRepository<UserDetails,Integer> {
     UserDetails findByEmail(String email) ;
 
-    UserDetails findByUserId( String userId);
+    UserDetails findByUserId(String userId);
     UserDetails findByUserName(String userName);
 
     List<UserDetails> findByRolesId(Long id);

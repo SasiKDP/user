@@ -9,12 +9,10 @@ import com.dataquadinc.mapper.UserMapper;
 import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
-import com.dataquadinc.model.UserType;
 import com.dataquadinc.repository.RolesDao;
 import com.dataquadinc.repository.UserDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -178,7 +176,7 @@ public class UserService {
             throw new RuntimeException("Error sending registration confirmation email: " + e.getMessage());
         }
     }
-    public ResponseEntity<Set<Roles>> getRolesByUserId( String UserId ) {
+    public ResponseEntity<Set<Roles>> getRolesByUserId(String UserId ) {
         UserDetails user = userDao.findByUserId(UserId);
         Set<Roles> roles = user.getRoles();
         return  ResponseEntity.ok(roles);

@@ -25,7 +25,7 @@ import java.util.Set;
 
 
 
-@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000"})
+@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000","https://mymulya.com"})
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -36,6 +36,14 @@ public class UserController {
     public ResponseEntity<ResponseBean<UserResponse>> registerUser(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
 
          return   userService.registerUser(userDto);
+
+    }
+
+
+    @PostMapping("/addusers")
+    public ResponseEntity<ResponseBean<UserResponse>> registerUsers(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
+
+        return   userService.registerUser(userDto);
 
     }
     @GetMapping("/roles/{userId}")

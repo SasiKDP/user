@@ -2,21 +2,10 @@ package com.dataquadinc.mapper;
 
 import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.exceptions.ValidationException;
-import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
-import com.dataquadinc.model.UserType;
 import com.dataquadinc.repository.RolesDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.management.relation.RoleNotFoundException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
@@ -36,7 +25,7 @@ public class UserMapper {
         user.setDesignation(userDto.getDesignation());
         user.setDob(userDto.getDob());
         user.setGender(userDto.getGender());
-       user.setJoiningDate(userDto.getJoiningDate());
+        user.setJoiningDate(userDto.getJoiningDate());
         user.setStatus(userDto.getStatus());
 
 
