@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Entity
 @Data
 
-public class LeaveCalender_prod {
+public class LeaveCalender {
     @Id
     private String userId;
     private LocalDate startDate;

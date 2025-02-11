@@ -5,8 +5,8 @@ import com.dataquadinc.dto.LoginResponseDTO;
 import com.dataquadinc.exceptions.InvalidCredentialsException;
 import com.dataquadinc.exceptions.UserAlreadyLoggedInException;
 import com.dataquadinc.exceptions.UserNotFoundException;  // Import the new exception
-import com.dataquadinc.model.UserDetails_prod;
-import com.dataquadinc.model.UserType_prod;
+import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.model.UserType;
 import com.dataquadinc.repository.LoginRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,7 +25,7 @@ public class LoginService {
 
     public LoginResponseDTO authenticate(LoginDTO loginDTO) {
         // Check if user exists in the database
-        UserDetails_prod userDetails = loginRepository.findByEmail(loginDTO.getEmail());
+        UserDetails userDetails = loginRepository.findByEmail(loginDTO.getEmail());
 
         if (userDetails == null) {
             // If user is not found, throw a UserNotFoundException
@@ -52,7 +52,7 @@ public class LoginService {
         loginRepository.save(userDetails);
 
         // Get the first role assigned to the user
-        UserType_prod roleType = userDetails.getRoles().iterator().next().getName();
+        UserType roleType = userDetails.getRoles().iterator().next().getName();
 
         // Create payload
         LoginResponseDTO.Payload payload = new LoginResponseDTO.Payload(

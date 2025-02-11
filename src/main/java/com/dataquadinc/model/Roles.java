@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Roles_prod {
+public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,7 +13,7 @@ public class Roles_prod {
 
     @Column(unique = true, nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserType_prod name;  //  (e.g., "Admin", "Manager", "Employee")
+    private UserType name;  //  (e.g., "Admin", "Manager", "Employee")
 
     public Long getId() {
         return id;
@@ -23,11 +23,11 @@ public class Roles_prod {
         this.id = id;
     }
 
-    public UserType_prod getName() {
+    public UserType getName() {
         return name;
     }
 
-    public void setName(UserType_prod name) {
+    public void setName(UserType name) {
         this.name = name;
     }
 }

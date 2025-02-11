@@ -4,7 +4,7 @@ import com.dataquadinc.dto.EmployeeWithRole;
 import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.dto.UserResponse;
-import com.dataquadinc.model.Roles_prod;
+import com.dataquadinc.model.Roles;
 
 import com.dataquadinc.service.UserService;
 import jakarta.validation.Valid;
@@ -47,7 +47,7 @@ public class UserController {
 
     }
     @GetMapping("/roles/{userId}")
-    public ResponseEntity<Set<Roles_prod>> getRolesByUserId(@PathVariable String userId ) {
+    public ResponseEntity<Set<Roles>> getRolesByUserId(@PathVariable String userId ) {
         return userService.getRolesByUserId(userId);
     }
 

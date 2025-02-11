@@ -1,6 +1,6 @@
 package com.dataquadinc.model;
 
-public enum UserType_prod {
+public enum UserType {
 
     ADMIN,
     SUPERADMIN,

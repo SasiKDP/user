@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Entity
 @Data
-public class UserDetails_prod {
+public class UserDetails {
 
     @Id
     @Column(unique = true,nullable = false)
@@ -83,7 +83,7 @@ public class UserDetails_prod {
             inverseJoinColumns = @JoinColumn(name = "role_id") // Foreign key to Roles
     )
 
-    private Set<Roles_prod> roles = new HashSet<>();
+    private Set<Roles> roles = new HashSet<>();
     private String status;
 
 
@@ -199,11 +199,11 @@ public class UserDetails_prod {
         this.lastLoginTime = lastLoginTime;
     }
 
-    public Set<Roles_prod> getRoles() {
+    public Set<Roles> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Roles_prod> roles) {
+    public void setRoles(Set<Roles> roles) {
         this.roles = roles;
     }
 
