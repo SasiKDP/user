@@ -17,7 +17,7 @@ public class UserVerifyController {
 
     // Send OTP to Email
     @PostMapping("/send-otp")
-    public ResponseEntity<String> sendOtp(@RequestParam String email) {
+    public ResponseEntity<String>sendOtp(@RequestParam String email) {
         String response = userService.sendOtp(email);
         return ResponseEntity.ok(response);
     }

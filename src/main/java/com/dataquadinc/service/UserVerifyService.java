@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserVerifyService {
-
     private static final Logger logger = LoggerFactory.getLogger(UserVerifyService.class);
     private final JavaMailSender javaMailSender;
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();

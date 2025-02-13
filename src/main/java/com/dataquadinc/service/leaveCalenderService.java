@@ -1,12 +1,13 @@
 package com.dataquadinc.service;
 
 import com.dataquadinc.dto.leaveCalenderDto;
-import com.dataquadinc.model.LeaveCalender;
+import com.dataquadinc.model.LeaveCalender_prod;
 import com.dataquadinc.repository.leaveCalendarDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class leaveCalenderService {
@@ -17,8 +18,8 @@ public class leaveCalenderService {
     @Autowired
     private EmailService emailService;  // Inject the EmailService
 
-    public LeaveCalender saveLeave(leaveCalenderDto dto) {
-        LeaveCalender leave = new LeaveCalender();
+    public LeaveCalender_prod saveLeave(leaveCalenderDto dto) {
+        LeaveCalender_prod leave = new LeaveCalender_prod();
         leave.setUserId(dto.getUserId());
         leave.setManagerEmail(dto.getManagerEmail());
         leave.setDescription(dto.getDescription());
@@ -29,10 +30,10 @@ public class leaveCalenderService {
 
 
         // Save the leave
-        LeaveCalender savedLeave = leaveCalendarDaoo.save(leave);
+        LeaveCalender_prod savedLeave = leaveCalendarDaoo.save(leave);
 
 // Send email to manager after leave is saved
-        String managerEmail = dto.getManagerEmail(); // Assuming you have the manager's email in the DTO
+        String[] managerEmailArray = dto.getManagerEmail().toArray(new String[0]); // Assuming you have the manager's email in the DTO
         String subject = "Leave Request Notification";
         String body = "Respected Manager,\n\n" +
                 "I am writing to formally request leave for the following period:\n\n" +
@@ -45,11 +46,11 @@ public class leaveCalenderService {
                 "User ID: " + dto.getUserId() + "\n";
 
 // Send the email
-        emailService.sendEmail(managerEmail, subject, body);
+        emailService.sendEmail(managerEmailArray, subject, body);
 
         return savedLeave;
     }
-    public List<LeaveCalender> getAllLeaves() {
+    public List<LeaveCalender_prod> getAllLeaves() {
         return leaveCalendarDaoo.findAll(); // Fetch all leave records
     }
 }

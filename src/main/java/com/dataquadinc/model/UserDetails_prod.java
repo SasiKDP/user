@@ -83,7 +83,7 @@ public class UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id") // Foreign key to Roles
     )
 
-    private Set<Roles> roles = new HashSet<>();
+    private Set<Roles_prod> roles = new HashSet<>();
     private String status;
 
 
@@ -199,11 +199,11 @@ public class UserDetails {
         this.lastLoginTime = lastLoginTime;
     }
 
-    public Set<Roles> getRoles() {
+    public Set<Roles_prod> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Roles> roles) {
+    public void setRoles(Set<Roles_prod> roles) {
         this.roles = roles;
     }
 

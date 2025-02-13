@@ -5,7 +5,6 @@ package com.dataquadinc.dto;
 public class UserVerifyDto {
     private String email;
     private String otp;
-
     public UserVerifyDto() {}
 
     public UserVerifyDto(String email, String otp) {
