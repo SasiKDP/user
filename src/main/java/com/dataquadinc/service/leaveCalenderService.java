@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class leaveCalenderService {
@@ -32,7 +33,7 @@ public class leaveCalenderService {
         LeaveCalender_prod savedLeave = leaveCalendarDaoo.save(leave);
 
 // Send email to manager after leave is saved
-        String managerEmail = dto.getManagerEmail(); // Assuming you have the manager's email in the DTO
+        String[] managerEmailArray = dto.getManagerEmail().toArray(new String[0]); // Assuming you have the manager's email in the DTO
         String subject = "Leave Request Notification";
         String body = "Respected Manager,\n\n" +
                 "I am writing to formally request leave for the following period:\n\n" +
@@ -45,7 +46,7 @@ public class leaveCalenderService {
                 "User ID: " + dto.getUserId() + "\n";
 
 // Send the email
-        emailService.sendEmail(managerEmail, subject, body);
+        emailService.sendEmail(managerEmailArray, subject, body);
 
         return savedLeave;
     }
