@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Data
@@ -16,7 +17,7 @@ public class LeaveCalender {
     private LocalDate endDate;
     private int noOfDays;
     private String leaveType;
-    private String managerEmail;
+    private Set<String> managerEmail;
     private String description;
 
     public String getUserId() {
@@ -56,17 +57,19 @@ public class LeaveCalender {
         return leaveType;
     }
 
+    public Set<String> getManagerEmail() {
+        return managerEmail;
+    }
+
+    public void setManagerEmail(Set<String> managerEmail) {
+        this.managerEmail = managerEmail;
+    }
+
     public void setLeaveType(String leaveType) {
         this.leaveType = leaveType;
     }
 
-    public String getManagerEmail() {
-        return managerEmail;
-    }
 
-    public void setManagerEmail(String managerEmail) {
-        this.managerEmail = managerEmail;
-    }
 
     public String getDescription() {
         return description;

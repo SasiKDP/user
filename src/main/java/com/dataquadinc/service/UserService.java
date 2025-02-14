@@ -107,11 +107,12 @@ public class UserService {
 
         // Check if email or userId already exists
         if (userDao.findByEmail(userDto.getEmail()) != null) {
-            errors.put("errormessage", "email is already in use");
+            errors.put("errormessage", userDto.getEmail()+" is already in use");
         }
         if (userDao.findByUserId(userDto.getUserId()) != null) {
-            errors.put("errorMessage", "userId already exists.Please log in");
+            errors.put("errorMessage", userDto.getUserId() + " already exists. Please log in");
         }
+
 
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
