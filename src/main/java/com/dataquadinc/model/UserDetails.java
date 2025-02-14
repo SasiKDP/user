@@ -78,7 +78,7 @@ public class UserDetails {
     @Column(nullable = false)
     @ManyToMany
     @JoinTable(
-            name = "user_roles_prod", // Name of the join table
+            name = "user_roles", // Name of the join table
             joinColumns = @JoinColumn(name = "user_id"), // Foreign key to UserDetails
             inverseJoinColumns = @JoinColumn(name = "role_id") // Foreign key to Roles
     )
