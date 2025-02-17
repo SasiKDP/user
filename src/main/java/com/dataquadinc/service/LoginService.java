@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Service
@@ -42,11 +43,19 @@ public class LoginService {
             throw new InvalidCredentialsException("No roles assigned to the user");
         }
 
-        // Check if the user is already logged in (you can use a flag like 'isLoggedIn')
+        // Define the session timeout duration (e.g., 30 minutes)
+        Duration sessionTimeout = Duration.ofMinutes(30);
+
+        // Check if the user is logged in based on last login time and session timeout
         if (userDetails.getLastLoginTime() != null) {
-            throw new UserAlreadyLoggedInException("User is already logged in.");
+            // If last login time is within the timeout, treat user as logged in
+            Duration timeSinceLastLogin = Duration.between(userDetails.getLastLoginTime(), LocalDateTime.now());
+            if (timeSinceLastLogin.compareTo(sessionTimeout) < 0) {
+                throw new UserAlreadyLoggedInException("User is already logged in.");
+            }
         }
 
+        // If user is not already logged in (or session expired), proceed to login
         // Update the last login time
         userDetails.setLastLoginTime(LocalDateTime.now());
         loginRepository.save(userDetails);
