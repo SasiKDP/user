@@ -1,8 +1,10 @@
 package com.dataquadinc.service;
 
+import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.dto.UserVerifyDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class UserVerifyService {
     private final Map<String, Long> otpTimestamps = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
-    private static final long OTP_EXPIRY_TIME_MS = 5 *60*1000; // 5 minutes
+    private static final long OTP_EXPIRY_TIME_MS = 5 * 60 * 1000; // 5 minutes
     private static final long OTP_COOLDOWN_MS = 60 * 1000; // 1 minute
 
     public UserVerifyService(JavaMailSender javaMailSender) {
@@ -30,9 +32,10 @@ public class UserVerifyService {
         startOtpCleanupTask();
     }
 
-    public String sendOtp(String email) {
+    public ForgotResponseDto sendOtp(String email) {
         if (email == null || email.isEmpty()) {
-            return "Invalid email address.";
+            return new ForgotResponseDto(false, "Invalid email address " + email);
+
         }
 
         // Trim the email to remove any whitespace
@@ -41,7 +44,9 @@ public class UserVerifyService {
         // Check cooldown period
         long currentTime = System.currentTimeMillis();
         if (otpTimestamps.containsKey(email) && (currentTime - otpTimestamps.get(email)) < OTP_COOLDOWN_MS) {
-            return "Please wait before requesting a new OTP.";
+            return new ForgotResponseDto(false, "Invalid email format: " + email, "Please wait before requesting a new OTP.");
+
+
         }
 
         // Generate a 6-digit OTP
@@ -54,38 +59,53 @@ public class UserVerifyService {
 
         // Send OTP via email
         sendOtpEmail(email, otp);
+        return new ForgotResponseDto(true, "OTP sent successfully.", null);
 
-        return "OTP sent successfully to " + email;
+
     }
 
-    public String verifyOtp(UserVerifyDto userDTO) {
-        if (userDTO == null || userDTO.getEmail() == null || userDTO.getOtp() == null) {
-            return "Email and OTP are required.";
-        }
-
-        // Trim inputs
+    public ForgotResponseDto verifyOtp(UserVerifyDto userDTO) {
         String email = userDTO.getEmail().trim();
         String enteredOtp = userDTO.getOtp().trim();
+        if (userDTO == null || userDTO.getEmail() == null || userDTO.getOtp() == null) {
+            return new ForgotResponseDto(false, "Invalid email format: " + email);
+        }
+
+
 
         // Retrieve stored OTP
         String storedOtp = otpStorage.get(email);
+        Long timestamp = otpTimestamps.get(email);
         logger.info("Verifying OTP for {}. Entered: {}, Stored: {}", email, enteredOtp, storedOtp);
         logger.info("Current OTP storage before verification: {}", otpStorage);
 
         if (storedOtp == null) {
             logger.warn("No OTP found for email: {}", email);
-            return "Invalid or expired OTP.";
+            return new ForgotResponseDto(false, "Invalid or expired OTP " + email);
+
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if ((currentTime - timestamp) > OTP_EXPIRY_TIME_MS) {
+            otpStorage.remove(email); // Remove expired OTP
+            otpTimestamps.remove(email); // Remove expired timestamp
+            logger.warn("OTP expired for email: {}", email);
+            return new ForgotResponseDto(false, "OTP has expired. " + email);
+
         }
 
         if (storedOtp.equals(enteredOtp)) {
             otpStorage.remove(email); // Remove OTP after successful verification
             otpTimestamps.remove(email); // Remove timestamp to allow new requests
             logger.info("OTP verification successful for {}", email);
-            return "Email verified successfully!";
+            return new ForgotResponseDto(true, "Email verified successfully! " + email );
+
         }
 
+
         logger.warn("OTP verification failed for {}. Entered: {}, Expected: {}", email, enteredOtp, storedOtp);
-        return "Invalid or expired OTP.";
+        return new ForgotResponseDto(false, "Invalid or expired OTP. " + email);
+
     }
 
     private void sendOtpEmail(String email, String otp) {
