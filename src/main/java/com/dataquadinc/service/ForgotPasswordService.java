@@ -3,9 +3,8 @@ package com.dataquadinc.service;
 import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONObject;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
@@ -41,12 +40,23 @@ public class ForgotPasswordService {
             return new ForgotResponseDto(false, "Invalid email format: " + email, "Email format is invalid.");
         }
 
-        if (!hasValidMXRecord(email)) {
-            return new ForgotResponseDto(false, "Invalid email domain: " + email, "Invalid email address.");
+        String domain = email.substring(email.indexOf("@") + 1);
+
+        if (!hasValidMXRecord(domain)) {
+            // Additional check for well-known email services (e.g., Gmail, Yahoo, etc.)
+            if (domain.equalsIgnoreCase("gmail.com") || domain.equalsIgnoreCase("yahoo.com")) {
+                return new ForgotResponseDto(false, "Invalid email domain: " + email, "Email domain is invalid.");
+            }
+            return new ForgotResponseDto(false, "Invalid email domain: " + email, "Domain doesn't have valid MX records.");
         }
 
-        if (!isEmailValidOnServer(email)) {
-            return new ForgotResponseDto(false, "The email address does not exist on the server: " + email, "Email not found.");
+//        if (!isEmailValidOnServer(email)) {
+//            return new ForgotResponseDto(false, "The email address does not exist on the server: " + email, "Email not found.");
+//        }
+
+        // Step 2: Check if email exists on mail server
+        if (!isEmailDeliverable(email)) {
+            return new ForgotResponseDto(false, "Email address does not exist: " + email, "Invalid email address.");
         }
 
         UserDetails user = userDao.findByEmail(email);
@@ -68,167 +78,220 @@ public class ForgotPasswordService {
         return new ForgotResponseDto(true, "OTP sent successfully.", null);
     }
 
+
     private boolean isValidEmailFormat(String email) {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return email != null && Pattern.matches(emailRegex, email);
     }
 
-    private boolean hasValidMXRecord(String email) {
+    private boolean isEmailDeliverable(String email) {
         String domain = email.substring(email.indexOf("@") + 1);
+
         try {
+            // First check MX records
             Hashtable<String, String> env = new Hashtable<>();
             env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
             DirContext ctx = new InitialDirContext(env);
             Attributes attrs = ctx.getAttributes(domain, new String[]{"MX"});
-            return attrs.get("MX") != null;
+
+            if (attrs.get("MX") == null) {
+                return false;
+            }
+
+            // Then try to send a test email
+            SimpleMailMessage testMessage = new SimpleMailMessage();
+            testMessage.setTo(email);
+            testMessage.setSubject("Email Verification");
+            testMessage.setText("This is a test email to verify your email address.");
+
+            mailSender.send(testMessage);
+            return true;
+
+        } catch (MailSendException e) {
+            // Check for specific error codes that indicate invalid email
+            String errorMsg = e.getMessage().toLowerCase();
+            return !(errorMsg.contains("550") ||
+                    errorMsg.contains("553") ||
+                    errorMsg.contains("501") ||
+                    errorMsg.contains("user unknown") ||
+                    errorMsg.contains("user not found") ||
+                    errorMsg.contains("does not exist") ||
+                    errorMsg.contains("recipient rejected"));
         } catch (Exception e) {
+            // Log the error for debugging
+            System.out.println("Error checking email " + email + ": " + e.getMessage());
             return false;
         }
     }
+    private boolean hasValidMXRecord(String domain) {
+        try {
+            // Check MX records without the 'mail.' prefix
+            Hashtable<String, String> env = new Hashtable<>();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+            DirContext ctx = new InitialDirContext(env);
+            Attributes attrs = ctx.getAttributes(domain, new String[]{"MX"});
+
+            return attrs.get("MX") != null;
+        } catch (Exception e) {
+            System.out.println("MX Record lookup failed for domain: " + domain);
+            return false;  // MX record not found, meaning no mail servers for this domain
+        }
+    }
+
+
 
     public boolean isEmailValidOnServer(String email) {
         String domain = email.substring(email.indexOf("@") + 1);
 
-        // Step 1: Try MX Record Lookup
-        if (!hasValidMXRecord(domain)) {
+        try {
+            // Step 1: Get MX Records for the email domain
+            Hashtable<String, String> env = new Hashtable<>();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+            DirContext ctx = new InitialDirContext(env);
+            Attributes attrs = ctx.getAttributes(domain, new String[]{"MX"});
+
+            if (attrs.get("MX") == null) {
+                System.out.println("No MX records found for domain: " + domain);
+                return false;
+            }
+
+            // Get all MX records
+            String[] mxRecords = attrs.get("MX").get().toString().split("\n");
+            String mxRecord = null;
+
+            // Find the appropriate MX record
+            for (String record : mxRecords) {
+                String serverPart = record.split(" ")[1];
+                if (serverPart != null && !serverPart.trim().isEmpty()) {
+                    mxRecord = serverPart.trim();
+                    break;
+                }
+            }
+
+            if (mxRecord == null) {
+                System.out.println("No valid MX record found for domain: " + domain);
+                return false;
+            }
+
+            // Step 2: Try SMTP Connection with appropriate timeout
+            Socket socket = new Socket();
+            socket.setSoTimeout(10000); // 10 seconds timeout
+            socket.connect(new InetSocketAddress(mxRecord, 25), 10000);
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+
+                String serverResponse = reader.readLine();
+                System.out.println("SMTP Server Response: " + serverResponse);
+                if (!serverResponse.startsWith("220")) return false;
+
+                // Use the actual domain in HELO command
+                writer.write("HELO " + domain + "\r\n");
+                writer.flush();
+                System.out.println("HELO Response: " + reader.readLine());
+
+                writer.write("MAIL FROM:<verify@" + domain + ">\r\n");
+                writer.flush();
+                System.out.println("MAIL FROM Response: " + reader.readLine());
+
+                writer.write("RCPT TO:<" + email + ">\r\n");
+                writer.flush();
+                String rcptResponse = reader.readLine();
+                System.out.println("RCPT TO Response: " + rcptResponse);
+
+                writer.write("QUIT\r\n");
+                writer.flush();
+
+                socket.close();
+                return rcptResponse != null && rcptResponse.startsWith("250");
+            }
+        } catch (Exception e) {
+            System.out.println("Error validating email for domain " + domain + ": " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
-
-        // Step 2: Try SMTP Validation
-        boolean smtpValid = smtpEmailCheck(email, domain);
-        if (smtpValid) {
-            return true;
-        }
-
-        // Step 3: If SMTP fails, use ZeroBounce API
-        return checkEmailWithZeroBounce(email);
     }
-//
-//    private boolean checkEmailWithZeroBounce(String email) {
-//        String apiKey = "e7f17e34886d4d1a9078dec6ca241cb6";  // Replace with your actual API key
-//        String url = "https://api.zerobounce.net/v2/validate?api_key=" + apiKey + "&email=" + email;
-//
-//        try {
-//            URL obj = new URL(url);
-//            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-//            con.setRequestMethod("GET");
-//
-//            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-//            String inputLine;
-//            StringBuilder response = new StringBuilder();
-//
-//            while ((inputLine = in.readLine()) != null) {
-//                response.append(inputLine);
-//            }
-//            in.close();
-//
-//            JSONObject jsonResponse = new JSONObject(response.toString());
-//            String status = jsonResponse.getString("status");
-//
-//            // ✅ Log for debugging
-//            System.out.println("ZeroBounce Response: " + jsonResponse.toString());
-//
-//            // Check if email is valid
-//            return "valid".equalsIgnoreCase(status);
-//        } catch (Exception e) {
-//            System.out.println("ZeroBounce API error: " + e.getMessage());
-//            return false;
-//        }
-//    }
+
+    /**
+     * Check if a domain has a valid MX record (Mail Exchange record).
+     */
+
+
 
     // ✅ Method to check if the email server accepts the email using SMTP
     private boolean smtpEmailCheck(String email, String domain) {
+        String smtpServer = "smtp." + domain;
+
+        // Check for common email providers like Gmail, Outlook, etc.
+        if (domain.equalsIgnoreCase("gmail.com")) {
+            smtpServer = "smtp.gmail.com";  // Gmail's SMTP server
+        } else if (domain.equalsIgnoreCase("outlook.com") || domain.equalsIgnoreCase("hotmail.com")) {
+            smtpServer = "smtp-mail.outlook.com";  // Outlook's SMTP server
+        } else if (domain.equalsIgnoreCase("yahoo.com")) {
+            smtpServer = "smtp.mail.yahoo.com";  // Yahoo's SMTP server
+        }else if (domain.equalsIgnoreCase("dataqinc.com")) {
+            smtpServer = "smtp.mail.dataqinc.com";  // Yahoo's SMTP server
+        }
+
         try {
+            // Try to connect to the SMTP server with the correct domain
             Socket socket = new Socket();
-            socket.connect(new InetSocketAddress("smtp." + domain, 25), 5000); // Connect to SMTP server
+            socket.connect(new InetSocketAddress(smtpServer, 25), 5000); // Try SMTP on port 25 first
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
 
             // Read server greeting
             String response = reader.readLine();
-            if (response == null || !response.startsWith("220")) {
-                System.out.println("SMTP Connection failed: " + response);
+            if (!response.startsWith("220")) {
                 socket.close();
                 return false;
             }
 
-            // HELO Command
+            // Introduce ourselves
             writer.println("HELO mydomain.com");
             reader.readLine();
 
-            // MAIL FROM Command
+            // Mail from command
             writer.println("MAIL FROM:<test@mydomain.com>");
             reader.readLine();
 
-            // RCPT TO Command (Check if email exists)
+            // Check if the email address can receive mail (RCPT TO command)
             writer.println("RCPT TO:<" + email + ">");
-            response = reader.readLine();  // Read response
+            response = reader.readLine();
 
-            // QUIT Command
+            // Send quit command and close connection
             writer.println("QUIT");
             socket.close();
 
-            // Log response for debugging
-            System.out.println("SMTP Response for " + email + ": " + response);
-
-            // Fix: Handle null response before calling startsWith()
-            return response != null && response.startsWith("250");
+            // If the server responds with 250, the recipient email is valid
+            return response.startsWith("250");
         } catch (IOException e) {
-            System.out.println("SMTP Error: " + e.getMessage());
-            return false; // SMTP check failed
+            System.out.println("SMTP check failed for email: " + email + " with error: " + e.getMessage());
+            return false;  // SMTP validation failed
         }
     }
 
-
-    // Function to check email via an external API
-    private boolean checkEmailWithZeroBounce(String email) {
-        String apiKey = "e7f17e34886d4d1a9078dec6ca241cb6";  // Replace with your actual API key
-        String url = "https://api.zerobounce.net/v2/validate?api_key=" + apiKey + "&email=" + email;
-
-        try {
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod("GET");
-
-            int responseCode = con.getResponseCode();
-            System.out.println("ZeroBounce API Response Code: " + responseCode);
-
-            if (responseCode != 200) {
-                System.out.println("ZeroBounce API call failed. HTTP Code: " + responseCode);
-                return false;
-            }
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            // ✅ Print full API response
-            System.out.println("ZeroBounce Response: " + response.toString());
-
-            // Parse JSON response safely
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonResponse = objectMapper.readTree(response.toString());
-
-            // ✅ Check if "status" field exists
-            JsonNode statusNode = jsonResponse.get("status");
-            if (statusNode == null) {
-                System.out.println("ZeroBounce API did not return a valid status field.");
-                return false;
-            }
-
-            String status = statusNode.asText();
-            return "valid".equalsIgnoreCase(status);
-
-        } catch (Exception e) {
-            System.out.println("ZeroBounce API error: " + e.getMessage());
-            return false;
-        }
-    }
+//    // Function to check email via an external API
+//    private boolean checkEmailWithAPI(String email) {
+//        try {
+//            String apiKey = "d6f4da1e713d43d28cda2165a27db915";
+//            String url = "https://apilayer.net/api/check?access_key=" + apiKey + "&email=" + email;
+//
+//            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+//            conn.setRequestMethod("GET");
+//
+//            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//            String response = in.readLine();
+//            in.close();
+//
+//            System.out.println("API Response: " + response);
+//
+//            return response.contains("\"format_valid\":true") && response.contains("\"smtp_check\":true");
+//        } catch (Exception e) {
+//            System.out.println("API check failed for email: " + email + " with error: " + e.getMessage());
+//            return false;
+//        }
+//    }
 
 
     private void sendOtpToEmail(String email, String otp) throws MailSendException {
@@ -245,15 +308,22 @@ public class ForgotPasswordService {
     }
 
     public ForgotResponseDto verifyOtp(String email, String otp) {
+        // Check if the email is valid and the OTP exists
         String storedOtp = otpStorage.get(email);
+
         if (storedOtp == null) {
-            return new ForgotResponseDto(false, "OTP expired or missing.", "OTP invalid.");
+            // OTP not found or expired, so the email user doesn't exist or OTP is not generated
+            return new ForgotResponseDto(false, "User does not exist or OTP not generated for the email: " + email, "User not found or OTP expired.");
         }
 
+        // Compare the stored OTP with the entered OTP
         if (storedOtp.equals(otp)) {
+            // OTP matches, verification successful
+            otpStorage.remove(email); // Remove the OTP after successful verification
             return new ForgotResponseDto(true, "OTP verified successfully.", null);
         } else {
-            return new ForgotResponseDto(false, "Invalid OTP.", "OTP incorrect.");
+            // OTP does not match, return an error
+            return new ForgotResponseDto(false, "Invalid OTP for email: " + email, "Incorrect OTP.");
         }
     }
 
