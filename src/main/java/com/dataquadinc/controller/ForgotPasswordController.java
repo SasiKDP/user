@@ -2,8 +2,8 @@ package com.dataquadinc.controller;
 
 import com.dataquadinc.dto.ForgotPasswordDto;
 import com.dataquadinc.dto.ForgotResponseDto;
-import com.dataquadinc.service.ForgotPasswordService;
 
+import com.dataquadinc.service.ForgotPasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
