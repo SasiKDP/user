@@ -1,5 +1,6 @@
 package com.dataquadinc.controller;
 
+import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.dto.UserVerifyDto;
 import com.dataquadinc.service.UserVerifyService;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +18,20 @@ public class UserVerifyController {
 
     // Send OTP to Email
     @PostMapping("/send-otp")
-    public ResponseEntity<String> sendOtp(@RequestParam String email) {
-        String response = userService.sendOtp(email);
+    public ResponseEntity<ForgotResponseDto> sendOtp(@RequestParam String email) {
+        ForgotResponseDto response = userService.sendOtp(email);
         return ResponseEntity.ok(response);
     }
 
     // Verify OTP
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestBody UserVerifyDto userDTO) {
-        if (userDTO.getEmail() == null || userDTO.getOtp() == null) {
-            return ResponseEntity.badRequest().body("Email and OTP are required");
+    public ResponseEntity<ForgotResponseDto> verifyOtp(@RequestBody UserVerifyDto userDTO) {
+        String email = userDTO.getEmail();
+        String otp = userDTO.getOtp();
+        if (email == null || otp == null || email.isEmpty() || otp.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ForgotResponseDto(false, "Email and OTP are required", "Missing fields"));
         }
-        String response = userService.verifyOtp(userDTO);
+        ForgotResponseDto response = userService.verifyOtp(userDTO);
         return ResponseEntity.ok(response);
     }
 }

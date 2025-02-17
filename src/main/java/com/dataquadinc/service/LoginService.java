@@ -38,7 +38,7 @@ public class LoginService {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        // Check if roles are present before accessing them
+        // Ensure roles are present before proceeding
         if (userDetails.getRoles() == null || userDetails.getRoles().isEmpty()) {
             throw new InvalidCredentialsException("No roles assigned to the user");
         }
@@ -46,24 +46,27 @@ public class LoginService {
         // Define the session timeout duration (e.g., 30 minutes)
         Duration sessionTimeout = Duration.ofMinutes(30);
 
-        // Check if the user is logged in based on last login time and session timeout
+        // If the user has logged out or session expired, reset the login time
         if (userDetails.getLastLoginTime() != null) {
-            // If last login time is within the timeout, treat user as logged in
             Duration timeSinceLastLogin = Duration.between(userDetails.getLastLoginTime(), LocalDateTime.now());
-            if (timeSinceLastLogin.compareTo(sessionTimeout) < 0) {
-                throw new UserAlreadyLoggedInException("User is already logged in.");
+            if (timeSinceLastLogin.compareTo(sessionTimeout) >= 0) {
+                // The session has expired or the user has logged out, allow login
+                userDetails.setLastLoginTime(null); // Clear the last login time, session expired
+            } else {
+                // If the session is still active, prevent login
+                throw new UserAlreadyLoggedInException("User is already logged in and session is active.");
             }
         }
 
-        // If user is not already logged in (or session expired), proceed to login
+        // If the session has expired or the user is logging in for the first time, proceed with login
         // Update the last login time
         userDetails.setLastLoginTime(LocalDateTime.now());
         loginRepository.save(userDetails);
 
-        // Get the first role assigned to the user
+        // Get the first role assigned to the user (assuming at least one role is present)
         UserType roleType = userDetails.getRoles().iterator().next().getName();
 
-        // Create payload
+        // Create payload with the user's details and role
         LoginResponseDTO.Payload payload = new LoginResponseDTO.Payload(
                 userDetails.getUserId(),
                 roleType,
