@@ -1,5 +1,11 @@
 package com.dataquadinc.controller;
 
+import com.dataquadinc.dto.EmployeeWithRole;
+import com.dataquadinc.dto.UserDto;
+import com.dataquadinc.dto.ResponseBean;
+import com.dataquadinc.dto.UserResponse;
+import com.dataquadinc.model.Roles;
+
 import com.dataquadinc.dto.*;
 import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.model.Roles;
@@ -15,7 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.management.relation.RoleNotFoundException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 //@CrossOrigin(origins = "http://35.188.150.92")
@@ -31,16 +39,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserDao userDao;
-
-
     @PostMapping("/register")
     public ResponseEntity<ResponseBean<UserResponse>> registerUser(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
 
          return   userService.registerUser(userDto);
 
     }
+
 
 //    // GET endpoint to fetch the recruiter's email by userId
 //    @GetMapping("/{userId}/email")
