@@ -1,7 +1,7 @@
 package com.dataquadinc.service;
 
 import com.dataquadinc.dto.ForgotResponseDto;
-import com.dataquadinc.model.UserDetails_prod;
+import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
@@ -59,7 +59,7 @@ public class ForgotPasswordService {
             return new ForgotResponseDto(false, "Email address does not exist: " + email, "Invalid email address.");
         }
 
-        UserDetails_prod user = userDao.findByEmail(email);
+        UserDetails user = userDao.findByEmail(email);
         if (user == null) {
             return new ForgotResponseDto(false, "User not found: " + email, "User does not exist.");
         }
@@ -328,7 +328,7 @@ public class ForgotPasswordService {
     }
 
     public ForgotResponseDto updatePassword(String email, String updatePassword) {
-        UserDetails_prod user = userDao.findByEmail(email);
+        UserDetails user = userDao.findByEmail(email);
         if (user == null) {
             return new ForgotResponseDto(false, "User not found: " + email, "User does not exist.");
         }
