@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserVerifyController {
 
     private final UserVerifyService userService;
@@ -17,14 +17,14 @@ public class UserVerifyController {
     }
 
     // Send OTP to Email
-    @PostMapping("/send-otp")
+    @PostMapping("/sendOtp")
     public ResponseEntity<ForgotResponseDto> sendOtp(@RequestParam String email) {
         ForgotResponseDto response = userService.sendOtp(email);
         return ResponseEntity.ok(response);
     }
 
     // Verify OTP
-    @PostMapping("/verify-otp")
+    @PostMapping("/verifyOtp")
     public ResponseEntity<ForgotResponseDto> verifyOtp(@RequestBody UserVerifyDto userDTO) {
         String email = userDTO.getEmail();
         String otp = userDTO.getOtp();
