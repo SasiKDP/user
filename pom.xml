@@ -80,10 +80,6 @@
 			<version>20210307</version> <!-- Use the latest version if necessary -->
 		</dependency>
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 		<!-- Lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
