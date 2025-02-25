@@ -4,6 +4,7 @@ package com.dataquadinc.service;
 import com.dataquadinc.dto.EmployeeWithRole;
 import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.dto.UserResponse;
+import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.exceptions.ValidationException;
 import com.dataquadinc.mapper.UserMapper;
 import com.dataquadinc.dto.ResponseBean;
@@ -444,11 +445,13 @@ public class UserService {
     }
 
 
-
-
-
-
-
+    public UserDetails getRecruiterById(String userId) {
+        UserDetails recruiter = userDao.findByUserId(userId);
+        if (recruiter == null) {
+            throw new UserNotFoundException("Recruiter not found with ID: " + userId);
+        }
+        return recruiter;
+    }
 }
 
 
