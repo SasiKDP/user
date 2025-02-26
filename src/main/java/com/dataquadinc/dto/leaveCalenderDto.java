@@ -11,6 +11,7 @@ import java.util.Set;
 public class leaveCalenderDto {
     @Id
     private String userId;
+    private String userName;
     private LocalDate startDate;
     private LocalDate endDate;
     private int noOfDays;
