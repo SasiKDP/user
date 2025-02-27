@@ -44,7 +44,8 @@ public class leaveCalenderService {
                 "Leave Type: " + dto.getLeaveType() + "\n\n" +
                 "Reason for Leave:\n" +
                 dto.getDescription() + "\n\n" +
-                "User ID: " + dto.getUserId() + "\n";
+                "User ID: " + dto.getUserId() + "\n"+
+                "User name:"+dto.getUserName();
 
 // Send the email
         emailService.sendEmail(managerEmailArray, subject, body);
