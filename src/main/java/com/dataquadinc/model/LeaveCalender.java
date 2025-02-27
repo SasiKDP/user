@@ -13,6 +13,7 @@ import java.util.Set;
 public class LeaveCalender {
     @Id
     private String userId;
+    private String userName;
     private LocalDate startDate;
     private LocalDate endDate;
     private int noOfDays;
@@ -77,5 +78,13 @@ public class LeaveCalender {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }
