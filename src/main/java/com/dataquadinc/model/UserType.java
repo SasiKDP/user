@@ -5,7 +5,6 @@ public enum UserType {
     ADMIN,
     SUPERADMIN,
     EMPLOYEE,
-
-
+    TEAMLEAD
 
 }
