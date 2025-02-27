@@ -22,6 +22,7 @@ public class leaveCalenderService {
         LeaveCalender_prod leave = new LeaveCalender_prod();
         leave.setUserId(dto.getUserId());
         leave.setManagerEmail(dto.getManagerEmail());
+        leave.setUserName(dto.getUserName());
         leave.setDescription(dto.getDescription());
         leave.setStartDate(dto.getStartDate());
         leave.setEndDate(dto.getEndDate());
