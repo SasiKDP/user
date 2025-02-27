@@ -22,6 +22,7 @@ public class leaveCalenderService {
         LeaveCalender_prod leave = new LeaveCalender_prod();
         leave.setUserId(dto.getUserId());
         leave.setManagerEmail(dto.getManagerEmail());
+        leave.setUserName(dto.getUserName());
         leave.setDescription(dto.getDescription());
         leave.setStartDate(dto.getStartDate());
         leave.setEndDate(dto.getEndDate());
@@ -43,7 +44,8 @@ public class leaveCalenderService {
                 "Leave Type: " + dto.getLeaveType() + "\n\n" +
                 "Reason for Leave:\n" +
                 dto.getDescription() + "\n\n" +
-                "User ID: " + dto.getUserId() + "\n";
+                "User ID: " + dto.getUserId() + "\n"+
+                "User name:"+dto.getUserName();
 
 // Send the email
         emailService.sendEmail(managerEmailArray, subject, body);
