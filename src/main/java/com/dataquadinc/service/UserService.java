@@ -41,6 +41,7 @@ public class UserService {
     @Autowired
     private RolesDao rolesDao;
 
+
 //    public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
 //
 //        Map<String,String> errors = new HashMap<>();

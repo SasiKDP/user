@@ -22,6 +22,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 		<!-- Spring Boot dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -74,7 +79,6 @@
 			<artifactId>json</artifactId>
 			<version>20210307</version> <!-- Use the latest version if necessary -->
 		</dependency>
-
 
 		<!-- Lombok -->
 		<dependency>
