@@ -2,17 +2,17 @@ package com.dataquadinc.repository;
 
 
 
-import com.dataquadinc.model.Timesheet_prod;
+import com.dataquadinc.model.Timesheet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface TimesheetRepository extends JpaRepository<Timesheet_prod, Long> {
+public interface TimesheetRepository extends JpaRepository<Timesheet, Long> {
 
-    Timesheet_prod findByEmployeeIdAndClockOutIsNull(String employeeId);
+    Timesheet findByEmployeeIdAndClockOutIsNull(String employeeId);
 
-    Timesheet_prod findByEmployeeIdAndDate(String employeeId, String date);
-    List<Timesheet_prod> findByEmployeeId(String employeeId);
+    Timesheet findByEmployeeIdAndDate(String employeeId, String date);
+    List<Timesheet> findByEmployeeId(String employeeId);
 
 
 }

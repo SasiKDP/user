@@ -2,13 +2,12 @@ package com.dataquadinc.dto;
 
 import lombok.Data;
 
-import java.util.Map;
-
 @Data
 public class    UserResponse {
     private String userId;
     private String userName;
     private String Email;
+    private String personalemail;
 
     public String getUserId() {
         return userId;
@@ -32,5 +31,13 @@ public class    UserResponse {
 
     public void setEmail(String email) {
         Email = email;
+    }
+
+    public String getPersonalemail() {
+        return personalemail;
+    }
+
+    public void setPersonalemail(String personalemail) {
+        this.personalemail = personalemail;
     }
 }
