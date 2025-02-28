@@ -43,20 +43,20 @@ public class LoginService {
             throw new InvalidCredentialsException("No roles assigned to the user");
         }
 
-        // Define the session timeout duration (e.g., 30 minutes)
-        Duration sessionTimeout = Duration.ofMinutes(30);
-
-        // If the user has logged out or session expired, reset the login time
-        if (userDetails.getLastLoginTime() != null) {
-            Duration timeSinceLastLogin = Duration.between(userDetails.getLastLoginTime(), LocalDateTime.now());
-            if (timeSinceLastLogin.compareTo(sessionTimeout) >= 0) {
-                // The session has expired or the user has logged out, allow login
-                userDetails.setLastLoginTime(null); // Clear the last login time, session expired
-            } else {
-                // If the session is still active, prevent login
-                throw new UserAlreadyLoggedInException("User is already logged in and session is active.");
-            }
-        }
+//        // Define the session timeout duration (e.g., 30 minutes)
+//        Duration sessionTimeout = Duration.ofMinutes(30);
+//
+//        // If the user has logged out or session expired, reset the login time
+//        if (userDetails.getLastLoginTime() != null) {
+//            Duration timeSinceLastLogin = Duration.between(userDetails.getLastLoginTime(), LocalDateTime.now());
+//            if (timeSinceLastLogin.compareTo(sessionTimeout) >= 0) {
+//                // The session has expired or the user has logged out, allow login
+//                userDetails.setLastLoginTime(null); // Clear the last login time, session expired
+//            } else {
+//                // If the session is still active, prevent login
+//                throw new UserAlreadyLoggedInException("User is already logged in and session is active.");
+//            }
+//        }
 
         // If the session has expired or the user is logging in for the first time, proceed with login
         // Update the last login time
