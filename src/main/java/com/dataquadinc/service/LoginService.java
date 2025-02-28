@@ -4,6 +4,7 @@ import com.dataquadinc.dto.LoginDTO;
 import com.dataquadinc.dto.LoginResponseDTO;
 import com.dataquadinc.exceptions.InvalidCredentialsException;
 import com.dataquadinc.exceptions.UserAlreadyLoggedInException;
+import com.dataquadinc.exceptions.UserInactiveException;
 import com.dataquadinc.exceptions.UserNotFoundException;  // Import the new exception
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.model.UserType;
@@ -31,6 +32,12 @@ public class LoginService {
         if (userDetails == null) {
             // If user is not found, throw a UserNotFoundException
             throw new UserNotFoundException("User not found with email: " + loginDTO.getEmail());
+        }
+
+        // Check if the user is active
+        if (userDetails.getStatus() == null || !userDetails.getStatus().equals("ACTIVE")) {
+            // If user is not active, throw a UserInactiveException
+            throw new UserInactiveException("User is inactive and cannot log in.");
         }
 
         // Validate password
