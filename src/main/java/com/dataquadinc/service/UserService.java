@@ -113,9 +113,9 @@ public class UserService {
         if (userDao.findByUserId(userDto.getUserId()) != null) {
             errors.put("errorMessage", userDto.getUserId() + " already exists. Please log in");
         }
-//        if (userDao.findByPersonalEmail(userDto.getPersonalemail()) != null) {
-//            errors.put("errormessage", userDto.getPersonalemail()+" is already in use");
-//        }
+        if (userDao.findByPersonalEmail(userDto.getPersonalemail()) != null) {
+            errors.put("errormessage", userDto.getPersonalemail()+" is already in use");
+        }
 
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
@@ -150,6 +150,7 @@ public class UserService {
         res.setUserName(dbUser.getUserName());
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
+        res.setPersonalemail(dbUser.getPersonalemail());
 
         // Create and send registration success email
         sendRegistrationConfirmationEmail(dbUser.getEmail());
