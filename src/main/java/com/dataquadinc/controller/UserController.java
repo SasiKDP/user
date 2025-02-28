@@ -4,14 +4,10 @@ import com.dataquadinc.dto.EmployeeWithRole;
 import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.dto.UserResponse;
-import com.dataquadinc.model.Roles;
-
-import com.dataquadinc.dto.*;
 import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.model.Roles;
 
 import com.dataquadinc.model.UserDetails;
-import com.dataquadinc.repository.UserDao;
 import com.dataquadinc.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +28,7 @@ import java.util.Set;
 
 
 
-@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000","https://mymulya.com"})
+@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000","https://mymulya.com","http://localhost:3000"})
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -45,56 +41,6 @@ public class UserController {
          return   userService.registerUser(userDto);
 
     }
-
-
-//    // GET endpoint to fetch the recruiter's email by userId
-//    @GetMapping("/{userId}/email")
-//    public String getRecruiterEmail(@PathVariable String userId) {
-//        // Fetch the recruiter details using the userId
-//        UserDetails recruiter = userService.getRecruiterById(userId);
-//        return recruiter.getEmail(); // Return the email if found
-//    }
-
-    // GET endpoint to fetch the recruiter's email by userId
-//    @GetMapping("/{userId}/email")
-//    public ResponseEntity<EmailResponseDto> getRecruiterEmail(@PathVariable String userId) {
-//        try {
-//            // Fetch the recruiter details using the userId
-//            UserDetails recruiter = userService.getRecruiterById(userId);
-//
-//            // Log the recruiter object
-//            System.out.println("Fetched recruiter: " + recruiter);
-//
-//            if (recruiter == null) {
-//                throw new UserNotFoundException("Recruiter not found with ID: " + userId);
-//            }
-//
-//            // Prepare the payload with both email and name
-//            Map<String, String> payload = new HashMap<>();
-//            payload.put("email", recruiter.getEmail());
-//            payload.put("name", recruiter.getUserName());
-//
-//            // Log the payload being returned
-//            System.out.println("Payload: " + payload);
-//
-//            // Prepare success response
-//            EmailResponseDto response = new EmailResponseDto(
-//                    true,
-//                    "Email fetched successfully",
-//                    payload,
-//                    null
-//            );
-//
-//            return ResponseEntity.ok(response);
-//
-//        } catch (UserNotFoundException ex) {
-//            // Prepare error response
-//            EmailResponseDto.ErrorResponse error = new EmailResponseDto.ErrorResponse("404", ex.getMessage());
-//            EmailResponseDto response = new EmailResponseDto(false, "Unsuccessful", null, error);
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-//        }
-//    }
-//
 
     @GetMapping("/{userId}/email")
     public ResponseEntity<String> getRecruiterEmail(@PathVariable String userId) {
@@ -177,6 +123,7 @@ public class UserController {
                     .body("Error: An unexpected error occurred");
         }
     }
+
 
     @PostMapping("/addusers")
     public ResponseEntity<ResponseBean<UserResponse>> registerUsers(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
