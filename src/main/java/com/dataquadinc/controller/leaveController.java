@@ -1,7 +1,7 @@
 package com.dataquadinc.controller;
 
 import com.dataquadinc.dto.leaveCalenderDto;
-import com.dataquadinc.model.LeaveCalender_prod;
+import com.dataquadinc.model.LeaveCalender;
 import com.dataquadinc.service.leaveCalenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,8 @@ public class leaveController {
     private leaveCalenderService leaveCalendarService;
 
     @PostMapping("/save")
-    public ResponseEntity<LeaveCalender_prod> saveLeave(@RequestBody leaveCalenderDto dto) {
-        LeaveCalender_prod savedLeave = leaveCalendarService.saveLeave(dto);
+    public ResponseEntity<LeaveCalender> saveLeave(@RequestBody leaveCalenderDto dto) {
+        LeaveCalender savedLeave = leaveCalendarService.saveLeave(dto);
         return ResponseEntity.ok(savedLeave);
     }
 
@@ -34,8 +34,8 @@ public class leaveController {
 //    }
 
     @GetMapping("/leaves")
-    public ResponseEntity<List<LeaveCalender_prod>> getAllLeaves() {
-        List<LeaveCalender_prod> leaves = leaveCalendarService.getAllLeaves();
+    public ResponseEntity<List<LeaveCalender>> getAllLeaves() {
+        List<LeaveCalender> leaves = leaveCalendarService.getAllLeaves();
         System.out.println("hii");
         return ResponseEntity.ok(leaves);
     }

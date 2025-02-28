@@ -2,10 +2,8 @@
 package com.dataquadinc.service;
 
 import com.dataquadinc.dto.ForgotResponseDto;
-import com.dataquadinc.model.UserDetails_prod;
+import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,10 +16,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.URL;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -60,7 +56,7 @@ public class ForgotPasswordService {
             return new ForgotResponseDto(false, "Email address does not exist: " + email, "Invalid email address.");
         }
 
-        UserDetails_prod user = userDao.findByEmail(email);
+        UserDetails user = userDao.findByEmail(email);
         if (user == null) {
             return new ForgotResponseDto(false, "User not found: " + email, "User does not exist.");
         }
@@ -329,7 +325,7 @@ public class ForgotPasswordService {
     }
 
     public ForgotResponseDto updatePassword(String email, String updatePassword) {
-        UserDetails_prod user = userDao.findByEmail(email);
+        UserDetails user = userDao.findByEmail(email);
         if (user == null) {
             return new ForgotResponseDto(false, "User not found: " + email, "User does not exist.");
         }

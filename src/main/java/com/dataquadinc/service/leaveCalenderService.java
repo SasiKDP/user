@@ -1,13 +1,12 @@
 package com.dataquadinc.service;
 
 import com.dataquadinc.dto.leaveCalenderDto;
-import com.dataquadinc.model.LeaveCalender_prod;
+import com.dataquadinc.model.LeaveCalender;
 import com.dataquadinc.repository.leaveCalendarDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class leaveCalenderService {
@@ -18,8 +17,8 @@ public class leaveCalenderService {
     @Autowired
     private EmailService emailService;  // Inject the EmailService
 
-    public LeaveCalender_prod saveLeave(leaveCalenderDto dto) {
-        LeaveCalender_prod leave = new LeaveCalender_prod();
+    public LeaveCalender saveLeave(leaveCalenderDto dto) {
+        LeaveCalender leave = new LeaveCalender();
         leave.setUserId(dto.getUserId());
         leave.setManagerEmail(dto.getManagerEmail());
         leave.setUserName(dto.getUserName());
@@ -31,7 +30,7 @@ public class leaveCalenderService {
 
 
         // Save the leave
-        LeaveCalender_prod savedLeave = leaveCalendarDaoo.save(leave);
+        LeaveCalender savedLeave = leaveCalendarDaoo.save(leave);
 
 // Send email to manager after leave is saved
         String[] managerEmailArray = dto.getManagerEmail().toArray(new String[0]); // Assuming you have the manager's email in the DTO
@@ -52,7 +51,7 @@ public class leaveCalenderService {
 
         return savedLeave;
     }
-    public List<LeaveCalender_prod> getAllLeaves() {
+    public List<LeaveCalender> getAllLeaves() {
         return leaveCalendarDaoo.findAll(); // Fetch all leave records
     }
 }

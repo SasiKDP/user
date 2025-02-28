@@ -5,9 +5,9 @@ import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.dto.UserResponse;
 import com.dataquadinc.exceptions.UserNotFoundException;
-import com.dataquadinc.model.Roles_prod;
+import com.dataquadinc.model.Roles;
 
-import com.dataquadinc.model.UserDetails_prod;
+import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<String> getRecruiterEmail(@PathVariable String userId) {
         try {
             // Fetch the recruiter details using the userId
-            UserDetails_prod recruiter = userService.getRecruiterById(userId);
+            UserDetails recruiter = userService.getRecruiterById(userId);
 
             // Log the recruiter object
             System.out.println("Fetched recruiter: " + recruiter);
@@ -81,7 +81,7 @@ public class UserController {
             // Process each ID individually
             for (String userId : idArray) {
                 try {
-                    UserDetails_prod recruiter = userService.getRecruiterById(userId.trim());
+                    UserDetails recruiter = userService.getRecruiterById(userId.trim());
 
                     if (recruiter != null) {
                         // If not first entry, add a comma
@@ -131,7 +131,7 @@ public class UserController {
 
     }
     @GetMapping("/roles/{userId}")
-    public ResponseEntity<Set<Roles_prod>> getRolesByUserId(@PathVariable String userId ) {
+    public ResponseEntity<Set<Roles>> getRolesByUserId(@PathVariable String userId ) {
         return userService.getRolesByUserId(userId);
     }
 

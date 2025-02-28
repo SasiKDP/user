@@ -1,6 +1,6 @@
 package com.dataquadinc.dto;
 
-import com.dataquadinc.model.Roles_prod;
+import com.dataquadinc.model.Roles;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ public class RoleDto {
     private String roleName;
 
     // Constructor to initialize RoleDto from Roles entity
-    public RoleDto(Roles_prod role) {
+    public RoleDto(Roles role) {
         this.roleName = role.getName().name();  // Assuming Roles is an enum
     }
 }

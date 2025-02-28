@@ -2,7 +2,7 @@ package com.dataquadinc.service;
 
 import com.dataquadinc.dto.LogoutResponseDTO;
 import com.dataquadinc.dto.Payload;
-import com.dataquadinc.model.UserDetails_prod;
+import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +44,7 @@ public class LogoutService {
 
     private boolean processLogout(String userId) {
         // Find the user details from the database using user ID
-        UserDetails_prod userDetails = userDao.findByUserId(userId);
+        UserDetails userDetails = userDao.findByUserId(userId);
 
         // Check if the user exists
         if (userDetails != null) {
@@ -64,7 +64,7 @@ public class LogoutService {
 
     // Method to reset user session state (clear any session-related fields)
     private void resetUserSession(String userId) {
-        UserDetails_prod userDetails = userDao.findByUserId(userId);
+        UserDetails userDetails = userDao.findByUserId(userId);
 
         if (userDetails != null) {
             // Reset session-related fields (like lastLoginTime, session token, etc.)

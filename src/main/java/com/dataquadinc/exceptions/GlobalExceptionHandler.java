@@ -1,3 +1,4 @@
+
 package com.dataquadinc.exceptions;
 
 import com.dataquadinc.dto.ErrorResponseBean;
@@ -28,6 +29,19 @@ public class GlobalExceptionHandler {
 
         // Return the ResponseEntity with appropriate status
         return new ResponseEntity<>(errorResponse, status);
+    }
+
+    // Handle UserInactiveException (returns 403 Forbidden)
+    @ExceptionHandler(UserInactiveException.class)
+    public ResponseEntity<LoginResponseDTO> handleUserInactiveException(UserInactiveException e) {
+        // Create error response for inactive user login attempt
+        LoginResponseDTO errorResponse = new LoginResponseDTO(
+                false,
+                "Unsuccessful",
+                null,
+                new LoginResponseDTO.ErrorDetails("403", e.getMessage()) // 403 for forbidden action
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse); // Return 403 Forbidden status
     }
 
     // Handle custom ValidationException
@@ -73,7 +87,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmployeeAlreadyLoggedInException.class)
     public ResponseEntity<TimesheetResponseBean<String>> handleEmployeeAlreadyLoggedIn(EmployeeAlreadyLoggedInException ex) {
         // Prepare the error details
-       TimesheetResponseBean.ErrorDetail errorDetail = new TimesheetResponseBean.ErrorDetail(
+        TimesheetResponseBean.ErrorDetail errorDetail = new TimesheetResponseBean.ErrorDetail(
                 "Employee " + ex.getEmployeeId() + " has already logged in today.",
                 "300"
         );

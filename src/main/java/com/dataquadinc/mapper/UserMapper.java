@@ -2,7 +2,7 @@ package com.dataquadinc.mapper;
 
 import com.dataquadinc.dto.UserDto;
 import com.dataquadinc.exceptions.ValidationException;
-import com.dataquadinc.model.UserDetails_prod;
+import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.RolesDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,8 +13,8 @@ public class UserMapper {
     @Autowired
     private RolesDao roleDao;  // You will need to create this DAO
 
-    public UserDetails_prod toEntity(UserDto userDto) throws ValidationException {
-        UserDetails_prod user = new UserDetails_prod();
+    public UserDetails toEntity(UserDto userDto) throws ValidationException {
+        UserDetails user = new UserDetails();
         user.setUserId(userDto.getUserId());
         user.setUserName(userDto.getUserName());
         user.setPassword(userDto.getPassword());// Password should be encrypted later
