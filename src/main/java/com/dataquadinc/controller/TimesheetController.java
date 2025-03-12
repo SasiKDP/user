@@ -12,22 +12,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000","https://mymulya.com","http://localhost:3000"})
+@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000","https://mymulya.com","http://localhost:3000","http://192.168.0.135:8080"})
 
 @RestController
-@RequestMapping("/api/timesheets")
+@RequestMapping("/users")
 public class TimesheetController {
 
     @Autowired
     private TimesheetService timesheetService;
 
-    @PostMapping("/login")
+    @PostMapping("/checkin")
     public Timesheet logIn(@RequestBody Map<String, String> request) {
         String employeeId = request.get("employeeId");
         return timesheetService.logIn(employeeId);
     }
 
-    @PutMapping("/logout/{employeeId}")
+    @PutMapping("/checkout/{employeeId}")
     public ResponseEntity<?> logOut(@PathVariable String employeeId) {
         try {
             Timesheet updatedTimesheet = timesheetService.logOut(employeeId);
