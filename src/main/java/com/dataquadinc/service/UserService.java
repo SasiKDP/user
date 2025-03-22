@@ -1,13 +1,10 @@
 
 package com.dataquadinc.service;
 
-import com.dataquadinc.dto.EmployeeWithRole;
-import com.dataquadinc.dto.UserDto;
-import com.dataquadinc.dto.UserResponse;
+import com.dataquadinc.dto.*;
 import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.exceptions.ValidationException;
 import com.dataquadinc.mapper.UserMapper;
-import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.RolesDao;
@@ -450,6 +447,84 @@ public class UserService {
         }
         return recruiter;
     }
+
+
+    // BDM Service class with the updated getAllBdmEmployees method
+    public List<BdmEmployeeDTO> getAllBdmEmployees() {
+        List<UserDetails> users = userDao.findBdmEmployees();
+
+        System.out.println("Total BDM employees found: " + users.size());
+
+        return users.stream().map(user -> {
+            String userId = user.getUserId();
+            String userName = user.getUserName();
+
+            System.out.println("\n==== Processing BDM: " + userName + " (ID: " + userId + ") ====");
+
+            String roleName = Optional.ofNullable(user.getRoles())
+                    .flatMap(roles -> roles.stream()
+                            .map(role -> role.getName().name())
+                            .findFirst())
+                    .orElse("No Role");
+
+            // ✅ Count Clients (based on onboarding)
+            long clientCount = userDao.countClientsByUserId(userId);
+            System.out.println("Client Count: " + clientCount);
+
+            // ✅ Get client names for this BDM
+            List<String> clientNames = userDao.findClientNamesByUserId(userId);
+            System.out.println("Client Names for this BDM: " + clientNames);
+
+            // Initialize counters
+            long submissionCount = 0;
+            long interviewCount = 0;
+            long placementCount = 0;
+
+            // If there are clients associated with this BDM
+            if (!clientNames.isEmpty()) {
+                // Get the first client (could be enhanced to aggregate all clients)
+                String clientName = clientNames.get(0);
+                System.out.println("Using Client Name: " + clientName);
+
+                // ✅ Get all Job IDs for this client
+                List<String> jobIds = userDao.findJobIdsByClientName(clientName);
+                System.out.println("Job IDs for client " + clientName + ": " + jobIds);
+
+                // ✅ Count submissions for this client across all jobs
+                if (!jobIds.isEmpty()) {
+                    String jobId = jobIds.get(0); // Use the first job ID
+                    System.out.println("Using Job ID: " + jobId);
+
+                    submissionCount = userDao.countSubmissionsByJobIdAndClientName(jobId, clientName);
+                    System.out.println("Submission Count: " + submissionCount + " for Job ID: '" + jobId + "' and Client: '" + clientName + "'");
+                } else {
+                    System.out.println("No Job IDs found for client: " + clientName);
+                }
+
+                // ✅ Count Interviews based on Client Name
+                interviewCount = userDao.countInterviewsByClientName(clientName);
+                System.out.println("Interview Count: " + interviewCount + " for Client: '" + clientName + "'");
+
+                // ✅ Count Placements based on Client Name
+                placementCount = userDao.countPlacementsByClientName(clientName);
+                System.out.println("Placement Count: " + placementCount + " for Client: '" + clientName + "'");
+            }
+
+            return new BdmEmployeeDTO(
+                    userId,
+                    userName,
+                    roleName,
+                    user.getEmail(),
+                    user.getStatus(),
+                    clientCount,
+                    submissionCount,
+                    interviewCount,
+                    placementCount
+            );
+        }).collect(Collectors.toList());
+    }
+
+
 }
 
 
