@@ -41,75 +41,42 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
 
     // ✅ Get Client Name from requirements_model_prod
 
+    // ✅ Count ALL submissions for a client across ALL job IDs
     @Query(value = """
-    SELECT job_id 
-    FROM requirements_model_prod 
-    WHERE client_name = :clientName
+    SELECT COUNT(*) 
+    FROM candidates_prod c 
+    JOIN requirements_model_prod r ON c.job_id = r.job_id
+    JOIN bdm_client_prod b ON r.client_name = b.client_name
+    WHERE b.client_name = :clientName
 """, nativeQuery = true)
-    List<String> findJobIdsByClientName(@Param("clientName") String clientName);
+    long countAllSubmissionsByClientName(@Param("clientName") String clientName);
 
-    // ✅ Count Submissions using Job ID and Client Name
+    // ✅ Count ALL interviews for a client across ALL job IDs
     @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates_prod c 
-        JOIN requirements_model_prod r ON c.job_id = r.job_id
-        JOIN bdm_client_prod b ON r.client_name = b.client_name
-        WHERE c.job_id = :jobId 
-        AND b.client_name = :clientName
-    """, nativeQuery = true)
-    long countSubmissionsByJobIdAndClientName(@Param("jobId") String jobId, @Param("clientName") String clientName);
+    SELECT COUNT(*) 
+    FROM candidates_prod c 
+    JOIN requirements_model_prod r ON c.job_id = r.job_id
+    LEFT JOIN bdm_client_prod b ON r.client_name = b.client_name
+    WHERE (b.client_name = :clientName OR r.client_name = :clientName 
+           OR (:clientName IS NULL AND EXISTS (
+                SELECT 1 FROM candidates_prod c2 
+                WHERE c2.job_id = r.job_id
+           )))
+    AND c.timestamp IS NOT NULL
+""", nativeQuery = true)
+    long countAllInterviewsByClientName(@Param("clientName") String clientName);
 
-    // ✅ Count Submissions with case-insensitive client name
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates_prod c 
-        JOIN requirements_model_prod r ON c.job_id = r.job_id
-        JOIN bdm_client_prod b ON LOWER(r.client_name) = LOWER(b.client_name)
-        WHERE c.job_id = :jobId 
-        AND LOWER(b.client_name) = LOWER(:clientName)
-    """, nativeQuery = true)
-    long countSubmissionsByJobIdAndClientNameIgnoreCase(@Param("jobId") String jobId, @Param("clientName") String clientName);
 
-    // ✅ For debugging: Retrieve raw data to verify existence
+    // ✅ Count ALL placements for a client across ALL job IDs
     @Query(value = """
-        SELECT c.candidate_id, c.job_id, r.client_name AS req_client_name, b.client_name AS bdm_client_name 
-        FROM candidates_prod c 
-        JOIN requirements_model_prod r ON c.job_id = r.job_id
-        JOIN bdm_client_prod b ON r.client_name = b.client_name
-        WHERE c.job_id = :jobId 
-        AND b.client_name = :clientName
-    """, nativeQuery = true)
-    List<Map<String, Object>> verifyDataExistence(@Param("jobId") String jobId, @Param("clientName") String clientName);
-
-    // ✅ Count Interviews (Candidates mapped to client)
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates_prod c 
-        JOIN requirements_model_prod r ON c.job_id = r.job_id
-        WHERE r.client_name = :clientName 
-        AND c.timestamp IS NOT NULL
-    """, nativeQuery = true)
-    long countInterviewsByClientName(@Param("clientName") String clientName);
-
-    // ✅ Count Interviews with case-insensitive client name
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates_prod c 
-        JOIN requirements_model_prod r ON c.job_id = r.job_id
-        WHERE LOWER(r.client_name) = LOWER(:clientName)
-        AND c.timestamp IS NOT NULL
-    """, nativeQuery = true)
-    long countInterviewsByClientNameIgnoreCase(@Param("clientName") String clientName);
-
-    // ✅ Count Placements (Candidates with "PLACED" in Interview Status JSON)
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates_prod c
-        JOIN requirements_model_prod r ON c.job_id = r.job_id
-        WHERE r.client_name = :clientName
-        AND JSON_VALID(c.interview_status) = 1  
-        AND JSON_SEARCH(c.interview_status, 'one', 'PLACED', NULL, '$[*].status') IS NOT NULL
-    """, nativeQuery = true)
-    long countPlacementsByClientName(@Param("clientName") String clientName);
+    SELECT COUNT(*) 
+    FROM candidates_prod c
+    JOIN requirements_model_prod r ON c.job_id = r.job_id
+    JOIN bdm_client_prod b ON r.client_name = b.client_name
+    WHERE b.client_name = :clientName
+    AND JSON_VALID(c.interview_status) = 1  
+    AND JSON_SEARCH(c.interview_status, 'one', 'PLACED', NULL, '$[*].status') IS NOT NULL
+""", nativeQuery = true)
+    long countAllPlacementsByClientName(@Param("clientName") String clientName);
 
 }
