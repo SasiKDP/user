@@ -486,28 +486,17 @@ public class UserService {
                 String clientName = clientNames.get(0);
                 System.out.println("Using Client Name: " + clientName);
 
-                // ✅ Get all Job IDs for this client
-                List<String> jobIds = userDao.findJobIdsByClientName(clientName);
-                System.out.println("Job IDs for client " + clientName + ": " + jobIds);
+                // ✅ Count ALL submissions for this client (across ALL job IDs)
+                submissionCount = userDao.countAllSubmissionsByClientName(clientName);
+                System.out.println("Total Submission Count: " + submissionCount + " for Client: '" + clientName + "'");
 
-                // ✅ Count submissions for this client across all jobs
-                if (!jobIds.isEmpty()) {
-                    String jobId = jobIds.get(0); // Use the first job ID
-                    System.out.println("Using Job ID: " + jobId);
+                // ✅ Count ALL Interviews for this client (across ALL job IDs)
+                interviewCount = userDao.countAllInterviewsByClientName(clientName);
+                System.out.println("Total Interview Count: " + interviewCount + " for Client: '" + clientName + "'");
 
-                    submissionCount = userDao.countSubmissionsByJobIdAndClientName(jobId, clientName);
-                    System.out.println("Submission Count: " + submissionCount + " for Job ID: '" + jobId + "' and Client: '" + clientName + "'");
-                } else {
-                    System.out.println("No Job IDs found for client: " + clientName);
-                }
-
-                // ✅ Count Interviews based on Client Name
-                interviewCount = userDao.countInterviewsByClientName(clientName);
-                System.out.println("Interview Count: " + interviewCount + " for Client: '" + clientName + "'");
-
-                // ✅ Count Placements based on Client Name
-                placementCount = userDao.countPlacementsByClientName(clientName);
-                System.out.println("Placement Count: " + placementCount + " for Client: '" + clientName + "'");
+                // ✅ Count ALL Placements for this client (across ALL job IDs)
+                placementCount = userDao.countAllPlacementsByClientName(clientName);
+                System.out.println("Total Placement Count: " + placementCount + " for Client: '" + clientName + "'");
             }
 
             return new BdmEmployeeDTO(
@@ -523,7 +512,6 @@ public class UserService {
             );
         }).collect(Collectors.toList());
     }
-
 
 }
 
