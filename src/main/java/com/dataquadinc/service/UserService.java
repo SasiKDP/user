@@ -449,7 +449,6 @@ public class UserService {
     }
 
 
-    // BDM Service class with the updated getAllBdmEmployees method
     public List<BdmEmployeeDTO> getAllBdmEmployees() {
         List<UserDetails> users = userDao.findBdmEmployees();
 
@@ -479,6 +478,7 @@ public class UserService {
             long submissionCount = 0;
             long interviewCount = 0;
             long placementCount = 0;
+            long requirementsCount = 0; // ✅ New counter for requirements
 
             // If there are clients associated with this BDM
             if (!clientNames.isEmpty()) {
@@ -497,6 +497,10 @@ public class UserService {
                 // ✅ Count ALL Placements for this client (across ALL job IDs)
                 placementCount = userDao.countAllPlacementsByClientName(clientName);
                 System.out.println("Total Placement Count: " + placementCount + " for Client: '" + clientName + "'");
+
+                // ✅ Count ALL Requirements for this client
+                requirementsCount = userDao.countRequirementsByClientName(clientName);
+                System.out.println("Total Requirements Count: " + requirementsCount + " for Client: '" + clientName + "'");
             }
 
             return new BdmEmployeeDTO(
@@ -508,10 +512,13 @@ public class UserService {
                     clientCount,
                     submissionCount,
                     interviewCount,
-                    placementCount
+                    placementCount,
+                    requirementsCount // ✅ Added this to DTO
             );
         }).collect(Collectors.toList());
     }
+
+
 
 }
 

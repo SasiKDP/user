@@ -79,4 +79,13 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
 """, nativeQuery = true)
     long countAllPlacementsByClientName(@Param("clientName") String clientName);
 
+    // ✅ Count Requirements for a given client
+    @Query(value = """
+    SELECT COUNT(*) 
+    FROM requirements_model_prod r
+    WHERE r.client_name = :clientName
+""", nativeQuery = true)
+    long countRequirementsByClientName(@Param("clientName") String clientName);
+
+
 }
