@@ -1,13 +1,10 @@
 
 package com.dataquadinc.service;
 
-import com.dataquadinc.dto.EmployeeWithRole;
-import com.dataquadinc.dto.UserDto;
-import com.dataquadinc.dto.UserResponse;
+import com.dataquadinc.dto.*;
 import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.exceptions.ValidationException;
 import com.dataquadinc.mapper.UserMapper;
-import com.dataquadinc.dto.ResponseBean;
 import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.RolesDao;
@@ -455,6 +452,70 @@ public class UserService {
             throw new UserNotFoundException("Recruiter not found with ID: " + userId);
         }
         return recruiter;
+    }
+
+    // BDM Service class with the updated getAllBdmEmployees method
+    public List<BdmEmployeeDTO> getAllBdmEmployees() {
+        List<UserDetails> users = userDao.findBdmEmployees();
+
+        System.out.println("Total BDM employees found: " + users.size());
+
+        return users.stream().map(user -> {
+            String userId = user.getUserId();
+            String userName = user.getUserName();
+
+            System.out.println("\n==== Processing BDM: " + userName + " (ID: " + userId + ") ====");
+
+            String roleName = Optional.ofNullable(user.getRoles())
+                    .flatMap(roles -> roles.stream()
+                            .map(role -> role.getName().name())
+                            .findFirst())
+                    .orElse("No Role");
+
+            // ✅ Count Clients (based on onboarding)
+            long clientCount = userDao.countClientsByUserId(userId);
+            System.out.println("Client Count: " + clientCount);
+
+            // ✅ Get client names for this BDM
+            List<String> clientNames = userDao.findClientNamesByUserId(userId);
+            System.out.println("Client Names for this BDM: " + clientNames);
+
+            // Initialize counters
+            long submissionCount = 0;
+            long interviewCount = 0;
+            long placementCount = 0;
+
+            // If there are clients associated with this BDM
+            if (!clientNames.isEmpty()) {
+                // Get the first client (could be enhanced to aggregate all clients)
+                String clientName = clientNames.get(0);
+                System.out.println("Using Client Name: " + clientName);
+
+                // ✅ Count ALL submissions for this client (across ALL job IDs)
+                submissionCount = userDao.countAllSubmissionsByClientName(clientName);
+                System.out.println("Total Submission Count: " + submissionCount + " for Client: '" + clientName + "'");
+
+                // ✅ Count ALL Interviews for this client (across ALL job IDs)
+                interviewCount = userDao.countAllInterviewsByClientName(clientName);
+                System.out.println("Total Interview Count: " + interviewCount + " for Client: '" + clientName + "'");
+
+                // ✅ Count ALL Placements for this client (across ALL job IDs)
+                placementCount = userDao.countAllPlacementsByClientName(clientName);
+                System.out.println("Total Placement Count: " + placementCount + " for Client: '" + clientName + "'");
+            }
+
+            return new BdmEmployeeDTO(
+                    userId,
+                    userName,
+                    roleName,
+                    user.getEmail(),
+                    user.getStatus(),
+                    clientCount,
+                    submissionCount,
+                    interviewCount,
+                    placementCount
+            );
+        }).collect(Collectors.toList());
     }
 }
 
