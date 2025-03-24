@@ -33,11 +33,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseBean<UserResponse>> registerUser(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
+    public ResponseEntity<ResponseBean<UserResponse>> registerUser(@Valid @RequestBody UserDto userDto) throws RoleNotFoundException {
 
-         return   userService.registerUser(userDto);
+        return userService.registerUser(userDto);
 
     }
+
     @GetMapping("/{userId}/email")
     public ResponseEntity<String> getRecruiterEmail(@PathVariable String userId) {
         try {
@@ -122,13 +123,14 @@ public class UserController {
 
 
     @PostMapping("/addusers")
-    public ResponseEntity<ResponseBean<UserResponse>> registerUsers(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
+    public ResponseEntity<ResponseBean<UserResponse>> registerUsers(@Valid @RequestBody UserDto userDto) throws RoleNotFoundException {
 
-        return   userService.registerUser(userDto);
+        return userService.registerUser(userDto);
 
     }
+
     @GetMapping("/roles/{userId}")
-    public ResponseEntity<Set<Roles>> getRolesByUserId(@PathVariable String userId ) {
+    public ResponseEntity<Set<Roles>> getRolesByUserId(@PathVariable String userId) {
         return userService.getRolesByUserId(userId);
     }
 
@@ -164,4 +166,13 @@ public class UserController {
         return new ResponseEntity<>(bdmEmployees, HttpStatus.OK);
     }
 
+    // Endpoint to get the total submissions count across all clients and jobs
+    @GetMapping("/total-submissions")
+    public ResponseEntity<Long> getTotalSubmissions() {
+        // Get total submissions using the service method
+        long totalSubmissions = userService.getTotalSubmissionsAcrossAllClientsAndJobs();
+
+        // Return the count as a response
+        return ResponseEntity.ok(totalSubmissions);
+    }
 }
