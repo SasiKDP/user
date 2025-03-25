@@ -83,19 +83,27 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
     JOIN bdm_client_prod b ON r.client_name = b.client_name
     WHERE b.client_name = :clientName
     AND (
-        (JSON_VALID(c.interview_status) AND 
-         JSON_SEARCH(c.interview_status, 'one', 'PLACED', NULL, '$[*].status') IS NOT NULL)
+        -- ✅ Check if interview_status is a valid JSON and contains "Placed"
+        (JSON_VALID(c.interview_status) 
+         AND JSON_SEARCH(c.interview_status, 'one', 'Placed', NULL, '$[*].status') IS NOT NULL)
+        -- ✅ OR check if interview_status is stored as plain text "Placed"
         OR UPPER(c.interview_status) = 'PLACED'
     )
 """, nativeQuery = true)
     long countAllPlacementsByClientName(@Param("clientName") String clientName);
 
 
-    // ✅ Count Requirements for a given client
+    // ✅ Count distinct job IDs for a given client across all job IDs
     @Query(value = """
-        SELECT COUNT(*) 
+    SELECT COUNT(*) 
+    FROM (
+        SELECT DISTINCT r.job_id 
         FROM requirements_model_prod r
-        WHERE r.client_name = :clientName
-    """, nativeQuery = true)
+        JOIN bdm_client_prod b 
+            ON TRIM(UPPER(r.client_name)) COLLATE utf8mb4_bin = TRIM(UPPER(b.client_name)) COLLATE utf8mb4_bin
+        WHERE TRIM(UPPER(b.client_name)) COLLATE utf8mb4_bin = TRIM(UPPER(:clientName)) COLLATE utf8mb4_bin
+        AND r.job_id IS NOT NULL
+    ) AS distinct_jobs
+""", nativeQuery = true)
     long countRequirementsByClientName(@Param("clientName") String clientName);
 }
