@@ -163,4 +163,13 @@ public class UserController {
         }
         return new ResponseEntity<>(bdmEmployees, HttpStatus.OK);
     }
+    // Endpoint to get the total submissions count across all clients and jobs
+    @GetMapping("/total-submissions")
+    public ResponseEntity<Long> getTotalSubmissions() {
+        // Get total submissions using the service method
+        long totalSubmissions = userService.getTotalSubmissionsAcrossAllClientsAndJobs();
+
+        // Return the count as a response
+        return ResponseEntity.ok(totalSubmissions);
+    }
 }

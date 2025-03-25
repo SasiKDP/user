@@ -28,6 +28,9 @@ public class BdmEmployeeDTO {
     @JsonProperty("clientCount")
     private long clientCount;
 
+    @JsonProperty("requirementsCount")
+    private long requirementsCount;
+
     @JsonProperty("submissionCount")
     private long submissionCount;
 

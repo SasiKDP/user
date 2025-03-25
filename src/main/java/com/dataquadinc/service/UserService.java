@@ -454,9 +454,19 @@ public class UserService {
         return recruiter;
     }
 
+    // Method to get total submission count across all clients and jobs
+    public long getTotalSubmissionsAcrossAllClientsAndJobs() {
+        // Calling the query that counts all submissions across all job IDs and clients
+        long totalSubmissions = userDao.countAllSubmissionsAcrossAllJobsAndClients();
+
+        System.out.println("Total Submissions across all jobs and clients: " + totalSubmissions);
+
+        return totalSubmissions;
+    }
+
     // BDM Service class with the updated getAllBdmEmployees method
     public List<BdmEmployeeDTO> getAllBdmEmployees() {
-        List<UserDetails> users = userDao.findBdmEmployees();
+        List<UserDetails> users = userDao.findBdmEmployees();  // Get BDM employees
 
         System.out.println("Total BDM employees found: " + users.size());
 
@@ -466,6 +476,7 @@ public class UserService {
 
             System.out.println("\n==== Processing BDM: " + userName + " (ID: " + userId + ") ====");
 
+            // Get the user's role
             String roleName = Optional.ofNullable(user.getRoles())
                     .flatMap(roles -> roles.stream()
                             .map(role -> role.getName().name())
@@ -484,26 +495,32 @@ public class UserService {
             long submissionCount = 0;
             long interviewCount = 0;
             long placementCount = 0;
+            long requirementsCount = 0; // ✅ New counter for requirements
 
             // If there are clients associated with this BDM
             if (!clientNames.isEmpty()) {
-                // Get the first client (could be enhanced to aggregate all clients)
-                String clientName = clientNames.get(0);
-                System.out.println("Using Client Name: " + clientName);
+                for (String clientName : clientNames) {
+                    System.out.println("Processing Client: " + clientName);
 
-                // ✅ Count ALL submissions for this client (across ALL job IDs)
-                submissionCount = userDao.countAllSubmissionsByClientName(clientName);
-                System.out.println("Total Submission Count: " + submissionCount + " for Client: '" + clientName + "'");
+                    // ✅ Count ALL submissions for this client (across ALL job IDs)
+                    submissionCount += userDao.countAllSubmissionsByClientName(clientName); // Updated method for count
+                    System.out.println("Total Submission Count: " + submissionCount + " for Client: '" + clientName + "'");
 
-                // ✅ Count ALL Interviews for this client (across ALL job IDs)
-                interviewCount = userDao.countAllInterviewsByClientName(clientName);
-                System.out.println("Total Interview Count: " + interviewCount + " for Client: '" + clientName + "'");
+                    // ✅ Count ALL Interviews for this client (across ALL job IDs)
+                    interviewCount += userDao.countAllInterviewsByClientName(clientName);
+                    System.out.println("Total Interview Count: " + interviewCount + " for Client: '" + clientName + "'");
 
-                // ✅ Count ALL Placements for this client (across ALL job IDs)
-                placementCount = userDao.countAllPlacementsByClientName(clientName);
-                System.out.println("Total Placement Count: " + placementCount + " for Client: '" + clientName + "'");
+                    // ✅ Count ALL Placements for this client (across ALL job IDs)
+                    placementCount += userDao.countAllPlacementsByClientName(clientName);
+                    System.out.println("Total Placement Count: " + placementCount + " for Client: '" + clientName + "'");
+
+                    // ✅ Count ALL Requirements for this client
+                    requirementsCount += userDao.countRequirementsByClientName(clientName);
+                    System.out.println("Total Requirements Count: " + requirementsCount + " for Client: '" + clientName + "'");
+                }
             }
 
+            // Return DTO for BDM employee with all relevant counts
             return new BdmEmployeeDTO(
                     userId,
                     userName,
@@ -511,7 +528,8 @@ public class UserService {
                     user.getEmail(),
                     user.getStatus(),
                     clientCount,
-                    submissionCount,
+                    requirementsCount,  // Moved requirementsCount after clientCount
+                    submissionCount,  // Now submissionCount includes the total submissions for the BDM
                     interviewCount,
                     placementCount
             );
