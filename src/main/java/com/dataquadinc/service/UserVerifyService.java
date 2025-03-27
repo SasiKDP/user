@@ -120,17 +120,33 @@ public class UserVerifyService {
         }
     }
 
+
     private void startOtpCleanupTask() {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             long currentTime = System.currentTimeMillis();
-            logger.info("Cleaning expired OTPs at time: {}", currentTime);
+            logger.debug("Running OTP cleanup task at time: {}", currentTime);
 
-            otpStorage.entrySet().removeIf(entry ->
-                    (currentTime - otpTimestamps.getOrDefault(entry.getKey(), 0L)) > OTP_EXPIRY_TIME_MS);
-            otpTimestamps.entrySet().removeIf(entry ->
-                    (currentTime - entry.getValue()) > OTP_EXPIRY_TIME_MS);
+            // Only remove OTPs that have expired (older than 5 minutes)
+            otpStorage.entrySet().removeIf(entry -> {
+                Long timestamp = otpTimestamps.get(entry.getKey());
+                boolean expired = (currentTime - timestamp) > OTP_EXPIRY_TIME_MS;
+                if (expired) {
+                    logger.info("Removing expired OTP for email: {}", entry.getKey());
+                }
+                return expired;
+            });
 
-            logger.info("Current OTP storage after cleanup: {}", otpStorage);
-        }, 1, 1, TimeUnit.MINUTES);
+            otpTimestamps.entrySet().removeIf(entry -> {
+                long timestamp = entry.getValue();
+                boolean expired = (currentTime - timestamp) > OTP_EXPIRY_TIME_MS;
+                if (expired) {
+                    logger.info("Removing expired timestamp for email: {}", entry.getKey());
+                }
+                return expired;
+            });
+
+            logger.debug("Current OTP storage after cleanup: {}", otpStorage);
+        }, 1, 5, TimeUnit.MINUTES); // Adjusted to 5 minutes interval
+
     }
 }

@@ -1,9 +1,6 @@
 package com.dataquadinc.controller;
 
-import com.dataquadinc.dto.EmployeeWithRole;
-import com.dataquadinc.dto.UserDto;
-import com.dataquadinc.dto.ResponseBean;
-import com.dataquadinc.dto.UserResponse;
+import com.dataquadinc.dto.*;
 import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.model.Roles;
 
@@ -158,5 +155,21 @@ public class UserController {
         return userService.deleteUser(userId);
 
     }
+    @GetMapping("/bdmlist")
+    public ResponseEntity<List<BdmEmployeeDTO>> getBdmEmployees() {
+        List<BdmEmployeeDTO> bdmEmployees = userService.getAllBdmEmployees();
+        if (bdmEmployees.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(bdmEmployees, HttpStatus.OK);
+    }
+    // Endpoint to get the total submissions count across all clients and jobs
+    @GetMapping("/total-submissions")
+    public ResponseEntity<Long> getTotalSubmissions() {
+        // Get total submissions using the service method
+        long totalSubmissions = userService.getTotalSubmissionsAcrossAllClientsAndJobs();
 
+        // Return the count as a response
+        return ResponseEntity.ok(totalSubmissions);
+    }
 }
