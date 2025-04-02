@@ -16,8 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://192.168.0.140:3000",  // Second IP
                         "http://192.168.0.139:3000", // Third IP
                         "https://mymulya.com", // Forth IP
-                        "http://localhost:3000",
-                        "http://192.168.0.135:8080"// Fifth IP
+                        "http://localhost:3000", // Fifth IP
+                        "http://192.168.0.135:8080", // Sixth IP
+                        "http://182.18.177.16:144", // Seventh IP
+                        "http://192.168.0.135:80" // Eighth IP
                 )
 
                 .allowedOrigins("http://35.188.150.92",  "http://192.168.0.140:3000",  // Second IP
