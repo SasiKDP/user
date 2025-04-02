@@ -21,7 +21,9 @@ import java.util.Map;
         "http://192.168.0.135:8080",
         "http://182.18.177.16:444",
         "http://192.168.0.135:80",
-        "http://localhost/"
+        "http://localhost/", // Ninth IP
+        "https://mymulya.com:444", // Tenth IP
+        "http://mymulya.com:444" // Eleventh IP
 
 })
 
