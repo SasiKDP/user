@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.*;
         "https://mymulya.com",
         "http://localhost:3000",
         "http://192.168.0.135:8080",
-        "http://182.18.177.16:144",
-        "http://192.168.0.135:80"
+        "http://182.18.177.16:444",
+        "http://192.168.0.135:80",
+        "http://localhost/"
 })
 
 @RestController
