@@ -31,10 +31,11 @@ import java.util.Set;
         "http://192.168.0.139:3000",
         "https://mymulya.com",
         "http://localhost:3000",
-        "http://192.168.0.135:8080",
-        "http://182.18.177.16:444",
-        "http://192.168.0.135:80",
-        "http://localhost/"
+        "http://192.168.0.135:8080", // Sixth IP
+        "http://182.18.177.16:443", // Seventh IP
+        "http://192.168.0.135:80", // Eighth IP
+        "http://localhost/", // Ninth IP
+        "http://mymulya.com:443" // Tenth IP
 })
 
 @RestController

@@ -18,16 +18,11 @@ public class WebConfig implements WebMvcConfigurer {
                         "https://mymulya.com", // Forth IP
                         "http://localhost:3000", // Fifth IP
                         "http://192.168.0.135:8080", // Sixth IP
-                        "http://182.18.177.16:444", // Seventh IP
+                        "http://182.18.177.16:443", // Seventh IP
                         "http://192.168.0.135:80", // Eighth IP
-                        "http://localhost/" // Ninth IP
+                        "http://localhost/", // Ninth IP
+                        "http://mymulya.com:443" // Tenth IP
                 )
-
-                .allowedOrigins("http://35.188.150.92",  "http://192.168.0.140:3000",  // Second IP
-                        "http://192.168.0.139:3000", // Third IP
-                "https://mymulya.com","http://192.168.0.135:8080") // Forth IP
-        // Allow only your frontend domain
-
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // Allowed HTTP methods
                 .allowedHeaders("*")                      // Allow all headers
                 .allowCredentials(true);                  // Allow credentials (cookies, headers, etc.)
