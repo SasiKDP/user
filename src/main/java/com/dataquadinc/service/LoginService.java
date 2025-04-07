@@ -77,6 +77,8 @@ public class LoginService {
         // Create payload with the user's details and role
         LoginResponseDTO.Payload payload = new LoginResponseDTO.Payload(
                 userDetails.getUserId(),
+                userDetails.getUserName(),
+                userDetails.getEmail(),
                 roleType,
                 userDetails.getLastLoginTime()
         );
