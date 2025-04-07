@@ -4,6 +4,8 @@ package com.dataquadinc.service;
 import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
@@ -31,6 +33,9 @@ public class ForgotPasswordService {
     private JavaMailSender mailSender;
 
     private final Map<String, String> otpStorage = new HashMap<>();
+
+    private static final Logger logger = LoggerFactory.getLogger(ForgotPasswordService.class);
+
 
     public ForgotResponseDto generateOtp(String email) {
         if (!isValidEmailFormat(email)) {
@@ -63,6 +68,8 @@ public class ForgotPasswordService {
 
         String otp = String.format("%06d", new Random().nextInt(999999));
         otpStorage.put(email, otp);
+        logger.info("Generated OTP for email: {} is {}", email, otp);  // Be cautious logging OTP in production!
+
 
         try {
             sendOtpToEmail(email, otp);

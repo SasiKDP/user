@@ -9,7 +9,7 @@ public enum UserType {
     SUPERADMIN,
     EMPLOYEE,
     TEAMLEAD,
-    BDM
-
+    BDM,
+    PARTNER
 
 }
