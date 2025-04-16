@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -106,4 +107,9 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
     ) AS distinct_jobs
 """, nativeQuery = true)
     long countRequirementsByClientName(@Param("clientName") String clientName);
+
+    @Query(value = "SELECT * FROM user_details_prod WHERE joining_date BETWEEN :startDate AND :endDate", nativeQuery = true)
+    List<UserDetails> findEmployeesByJoiningDateRange(@Param("startDate") LocalDate startDate,
+                                                      @Param("endDate") LocalDate endDate);
+
 }

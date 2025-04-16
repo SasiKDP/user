@@ -1,19 +1,24 @@
 package com.dataquadinc.controller;
 
 import com.dataquadinc.dto.*;
+import com.dataquadinc.exceptions.DateRangeValidationException;
 import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.model.Roles;
 
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.service.UserService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.relation.RoleNotFoundException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +43,7 @@ import java.util.Set;
         "http://mymulya.com:443" // Tenth IP
 })
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -156,6 +162,35 @@ public class UserController {
 
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
+
+    @GetMapping("/employee/filterByJoiningDate")
+    public ResponseEntity<?> getEmployeesByJoiningDateRange(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        try {
+            List<EmployeeWithRole> employees = userService.getEmployeesByJoiningDateRange(startDate, endDate);
+
+            if (employees.isEmpty()) {
+                log.warn("⚠️ No employees found between {} and {}", startDate, endDate);
+                return new ResponseEntity<>(new ErrorResponse(
+                        HttpStatus.NOT_FOUND.value(),
+                        "No employees found between " + startDate + " and " + endDate,
+                        LocalDateTime.now()), HttpStatus.NOT_FOUND);
+            }
+
+            log.info("✅ Fetched {} employees between {} and {}", employees.size(), startDate, endDate);
+            return new ResponseEntity<>(employees, HttpStatus.OK);
+
+        } catch (DateRangeValidationException ex) {
+            log.error("❌ Date range validation failed: {}", ex.getMessage());
+            return new ResponseEntity<>(new com.dataquadinc.dto.ErrorResponse(
+                    HttpStatus.BAD_REQUEST.value(),
+                    ex.getMessage(),
+                    LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
     @PutMapping("/update/{userId}")
     public ResponseEntity<ResponseBean<UserResponse>> updateUser(@PathVariable String userId, @Valid @RequestBody UserDto userDto) throws RoleNotFoundException {
