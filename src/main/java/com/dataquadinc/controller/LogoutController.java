@@ -1,8 +1,13 @@
 package com.dataquadinc.controller;
 import com.dataquadinc.dto.LogoutResponseDTO;
+import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.service.LogoutService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 @CrossOrigin(origins = {
@@ -30,10 +35,16 @@ public class  LogoutController {
     }
 
     @PutMapping("/logout/{userId}")
-    public LogoutResponseDTO logout(@PathVariable String userId) {
-
-        return logoutService.logout(userId);
+    public ResponseEntity<LogoutResponseDTO> logout(@PathVariable String userId) {
+        try {
+            return ResponseEntity.ok(logoutService.logout(userId));
+        } catch (UserNotFoundException e) {
+            Map<String, String> error = Map.of("userId", e.getMessage());
+            LogoutResponseDTO response = new LogoutResponseDTO(false, "Logout failed", null, error);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
+
 }
 
 

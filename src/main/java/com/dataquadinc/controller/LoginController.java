@@ -34,9 +34,23 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
+        // Basic null or empty checks before hitting the service
+        if (loginDTO == null || loginDTO.getEmail() == null || loginDTO.getEmail().isBlank()
+                || loginDTO.getPassword() == null || loginDTO.getPassword().isBlank()) {
+            LoginResponseDTO errorResponse = new LoginResponseDTO(
+                    false,
+                    "Unsuccessful",
+                    null,
+                    new LoginResponseDTO.ErrorDetails("400", "Email and password must not be empty")
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        // Delegate to service layer if input is valid
         LoginResponseDTO response = loginService.authenticate(loginDTO);
         return ResponseEntity.ok(response);
     }
+
 
     // Handle Invalid Credentials Exception (returns 401 Unauthorized)
     @ExceptionHandler(InvalidCredentialsException.class)
