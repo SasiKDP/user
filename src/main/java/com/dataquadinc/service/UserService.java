@@ -11,6 +11,9 @@ import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.RolesDao;
 import com.dataquadinc.repository.UserDao;
 
+import lombok.extern.log4j.Log4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,77 +44,22 @@ public class UserService {
     @Autowired
     private RolesDao rolesDao;
 
-//    public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
-//
-//        Map<String,String> errors = new HashMap<>();
-//
-//
-////        if (userDao.findByUserName(userDto.getUserName()) != null) {
-////
-////            errors.put("userName","userName already exists");
-////        }
-//
-//        if (userDao.findByEmail(userDto.getEmail())!=null) {
-//            errors.put("errormessage","email is already in use");
-//        }
-//        if (userDao.findByUserId(userDto.getUserId())!=null) {
-//            errors.put("errorMessage","userId already exists");
-//        }
-//
-//        if( !errors.isEmpty()) {
-//            throw new ValidationException(errors);
-//        }
-//
-//
-//        // Encrypt the password
-//        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-//        userDto.setConfirmPassword(passwordEncoder.encode(userDto.getConfirmPassword()));
-//
-//        // Convert DTO to entity
-//        UserDetails user = userMapper.toEntity(userDto);
-//
-//        Set<Roles> roles = userDto.getRoles().stream()
-//                .map(role -> {
-//                    try {
-//                        return rolesDao.findByName(role) // Find Role by its name from RolesDao
-//                                .orElseThrow(() -> new ValidationException(Map.of("role","roleNotFound")));
-//                    } catch (ValidationException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                })
-//                .collect(Collectors.toSet());
-//
-//        user.setRoles(roles);
-//
-//        // Save the user to the database
-//        UserDetails dbUser = userDao.save(user);
-//
-//        UserResponse res=new UserResponse();
-//        res.setUserName(dbUser.getUserName());
-//        res.setUserId(dbUser.getUserId());
-//        res.setEmail(dbUser.getEmail());
-//        // Set success to true
-//
-//
-//        ResponseBean<UserResponse> resp = new ResponseBean<UserResponse>();
-//        resp.setSuccess(true);
-//        resp.setMessage(" Created Sucessfully");
-//        resp.setData(res);
-//        resp.setError(null);
-//
-//        return new ResponseEntity<ResponseBean<UserResponse>>(resp,HttpStatus.CREATED);
-//
-//    }
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
         Map<String, String> errors = new HashMap<>();
 
         // Check if email or userId already exists
         if (userDao.findByEmail(userDto.getEmail()) != null) {
-            errors.put("errormessage", userDto.getEmail()+" is already in use");
+            errors.put("email", userDto.getEmail() + " is already in use");
         }
         if (userDao.findByUserId(userDto.getUserId()) != null) {
-            errors.put("errorMessage", userDto.getUserId() + " already exists. Please log in");
+            errors.put("userId", userDto.getUserId() + " already exists. Please log in");
+        }
+
+        // Password match check
+        if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
+            errors.put("password", "Passwords do not match");
         }
 
         if (!errors.isEmpty()) {
@@ -127,31 +75,28 @@ public class UserService {
 
         // Map roles to the user
         Set<Roles> roles = userDto.getRoles().stream()
-                .map(role -> {
-                    try {
-                        return rolesDao.findByName(role) // Find Role by its name from RolesDao
-                                .orElseThrow(() -> new ValidationException(Map.of("role", "roleNotFound")));
-                    } catch (ValidationException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
+                .map(role -> rolesDao.findByName(role)
+                        .orElseThrow(() -> new ValidationException(Map.of("role", "Role '" + role + "' not found"))))
                 .collect(Collectors.toSet());
 
         user.setRoles(roles);
 
-        // Save the user to the database
+        // Save user to DB
         UserDetails dbUser = userDao.save(user);
 
-        // Create a response object
+        // Prepare response
         UserResponse res = new UserResponse();
         res.setUserName(dbUser.getUserName());
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
 
-        // Create and send registration success email
-        sendRegistrationConfirmationEmail(dbUser.getEmail());
+        // Try to send confirmation email
+        try {
+            sendRegistrationConfirmationEmail(dbUser.getEmail());
+        } catch (Exception e) {
+            log.warn("Email sending failed: {}", e.getMessage());
+        }
 
-        // Prepare the response bean
         ResponseBean<UserResponse> resp = new ResponseBean<>();
         resp.setSuccess(true);
         resp.setMessage("Created Successfully");
@@ -184,36 +129,6 @@ public class UserService {
 
     }
 
-//    public List<EmployeeWithRole> getRolesId(long id) {
-//        List<UserDetails> list = userDao.findByRolesId(id);
-//
-//        if (list.isEmpty()) {
-//            return Collections.emptyList();
-//        }
-//
-//        return list.stream()
-//                .map(e -> new EmployeeWithRole(e.getUserId(), e.getUserName(),e.getRoles()))
-//                .collect(Collectors.toList());
-//    }
-//
-//    public ResponseEntity<List<EmployeeWithRole>> getAllEmployeesWithRoles() {
-//        List<UserDetails> users = userDao.findAll();
-//        if (users.isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        }
-//
-//        List<EmployeeWithRole> employeeRoles = users.stream()
-//                .map(user -> new EmployeeWithRole(
-//                        user.getUserId(),
-//                        user.getUserName(),
-//                        user.getRoles()
-//                ))
-//                .collect(Collectors.toList());
-//
-//        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
-//    }
-
-
     public ResponseEntity<List<EmployeeWithRole>> getAllEmployeesWithRoles() {
         // Fetch all users from the database
         List<UserDetails> users = userDao.findAll();
@@ -237,7 +152,6 @@ public class UserService {
                     return new EmployeeWithRole(
                             user.getUserId(),       // Set user ID
                             user.getUserName(),
-                            // Set user name
                             roleName  ,
                             user.getEmail(),
                             user.getDesignation(),
@@ -254,85 +168,6 @@ public class UserService {
         // Return the list of EmployeeWithRole objects with an OK response status
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
-
-//    public ResponseEntity<ResponseBean<UserResponse>> updateUser(String userId, UserDto userDto) {
-//        Map<String, String> errors = new HashMap<>();
-//
-//        // Check if the user exists
-//        UserDetails existingUser = userDao.findByUserId(userId);
-//        if (existingUser == null) {
-//            ResponseBean<UserResponse> resp = new ResponseBean<>();
-//            resp.setSuccess(false);
-//            resp.setMessage("User not found");
-//            return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
-//        }
-//
-//        if (userDto.getUserName() == null || userDto.getUserName().isEmpty()) {
-//            errors.put("userName", "User name is required and cannot be null or empty");
-//            ResponseBean<UserResponse> resp = new ResponseBean<>();
-//            resp.setSuccess(false);
-//            resp.setMessage("Validation failed");
-//            return new ResponseEntity<>(resp, HttpStatus.BAD_REQUEST);
-//
-//
-//            // Check if personalemail is provided and valid
-//            if (userDto.getPersonalemail() == null || userDto.getPersonalemail().isEmpty()) {
-//                errors.put("personalemail", "Personal email is required and cannot be null or empty");
-//                ResponseBean<UserResponse> resp = new ResponseBean<>();
-//                resp.setSuccess(false);
-//                resp.setMessage("Validation failed");
-//                return new ResponseEntity<>(resp, HttpStatus.BAD_REQUEST);
-//            }
-//
-//        // Update the details (for example, the email, user name, etc.)
-//        existingUser.setUserName(userDto.getUserName());
-//        existingUser.setEmail(userDto.getEmail());
-//        existingUser.setStatus(userDto.getStatus());
-//        existingUser.setGender(userDto.getGender());
-//        existingUser.setDesignation(userDto.getDesignation());
-//        existingUser.setDob(userDto.getDob());
-//        existingUser.setPersonalemail(userDto.getPersonalemail());  // Ensure this is not null or empty
-//        existingUser.setJoiningDate(userDto.getJoiningDate());
-//        existingUser.setPhoneNumber(userDto.getPhoneNumber());
-//
-//        // If password is provided, encode it and update it
-//        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-//            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-//        }
-//
-//        // Handle roles update
-//        Set<Roles> roles = userDto.getRoles().stream()
-//                .map(role -> {
-//                    try {
-//                        return rolesDao.findByName(role)
-//                                .orElseThrow(() -> new ValidationException(Map.of("role", "roleNotFound")));
-//                    } catch (ValidationException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                })
-//                .collect(Collectors.toSet());
-//        existingUser.setRoles(roles);
-//
-//        // Save the updated user
-//        UserDetails updatedUser = userDao.save(existingUser);
-//        System.out.println("Saved UserName: " + updatedUser.getUserName());
-//
-//        // Prepare response
-//        UserResponse userResponse = new UserResponse();
-//        userResponse.setUserName(updatedUser.getUserName());
-//        userResponse.setUserId(updatedUser.getUserId());
-//        userResponse.setEmail(updatedUser.getEmail());
-//
-//        // Prepare the response bean
-//        ResponseBean<UserResponse> responseBean = new ResponseBean<>();
-//        responseBean.setSuccess(true);
-//        responseBean.setMessage("User updated successfully");
-//        responseBean.setData(userResponse);
-//        responseBean.setError(null);
-//
-//        return new ResponseEntity<>(responseBean, HttpStatus.OK);
-//    }
-
 
     public ResponseEntity<ResponseBean<UserResponse>> updateUser(String userId, UserDto userDto) {
         Map<String, String> errors = new HashMap<>();

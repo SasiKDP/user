@@ -7,10 +7,12 @@ import com.dataquadinc.dto.TimesheetResponseBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -137,10 +139,29 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseBean<String>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("errorcode", "403");
+        error.put("errormessage", "Access denied: " + ex.getMessage());
+        return buildErrorResponse(false, "Forbidden", null, error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponseBean<String>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("errorcode", "405");
+        error.put("errormessage", "HTTP method not supported: " + ex.getMethod());
+        return buildErrorResponse(false, "Invalid HTTP Method", null, error, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
 
     // Handle any other exceptions (return 500 Internal Server Error)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<LoginResponseDTO> handleGeneralException(Exception e) {
+        // Log the full exception
+        e.printStackTrace(); // Or use Logger
+
         LoginResponseDTO errorResponse = new LoginResponseDTO(
                 false,
                 "Unsuccessful",
@@ -149,4 +170,5 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
 }
