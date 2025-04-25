@@ -24,7 +24,7 @@ public class EmailService {
         message.setTo(to); // recipient's email
         message.setSubject(subject); // email subject
         message.setText(text); // email body
-        mailto:message.setFrom("datamatrrrix@gmail.com"); // your email
+        message.setFrom("notifications@dataqinc.com"); // your email
 
         javaMailSender.send(message);
     }

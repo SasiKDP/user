@@ -5,10 +5,12 @@ import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.dto.UserVerifyDto;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
+import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -110,10 +112,28 @@ public class UserVerifyService {
 
     private void sendOtpEmail(String email, String otp) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Your OTP Code");
-            message.setText("Your OTP is: " + otp + ". It is valid for 5 minutes.");
+            // Create a MimeMessage for HTML content
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            // Set the recipient, subject, and sender
+            helper.setTo(email);
+            helper.setSubject("Your OTP Code For Registration");
+            helper.setFrom("notifications@dataqinc.com");
+
+            // Build the HTML content
+            String emailContent = "<html>" +
+                    "<body>" +
+                    "<p>Your OTP for registration is: <strong>" + otp + "</strong>.</p>" +
+                    "<p> It is valid for 5 minutes.</p>"+
+                    "<p><strong>Note: This is an auto-generated email. Please do not reply to this email.</strong></p>" +
+                    "</body>" +
+                    "</html>";
+
+            // Set the email content as HTML
+            helper.setText(emailContent, true);
+
+            // Send the email
             javaMailSender.send(message);
             logger.info("OTP email sent successfully to {}", email);
         } catch (Exception e) {
