@@ -40,53 +40,53 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
     """, nativeQuery = true)
     List<String> findClientNamesByUserId(@Param("userId") String userId);
 
-    // ✅ Count ALL submissions across all job IDs and clients (across all users)
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates c 
-        JOIN requirements_model r ON c.job_id = r.job_id
-        JOIN bdm_client b ON r.client_name = b.client_name
-    """, nativeQuery = true)
-    long countAllSubmissionsAcrossAllJobsAndClients();
-
-    // ✅ Count ALL submissions for a specific client across all job IDs
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates c 
-        JOIN requirements_model r ON c.job_id = r.job_id
-        JOIN bdm_client b ON r.client_name = b.client_name
-        WHERE b.client_name = :clientName
-    """, nativeQuery = true)
-    long countAllSubmissionsByClientName(@Param("clientName") String clientName);
-
-    // ✅ Count ALL interviews for a client across ALL job IDs
-    @Query(value = """
-        SELECT COUNT(*) 
-        FROM candidates c 
-        JOIN requirements_model r ON c.job_id = r.job_id
-        LEFT JOIN bdm_client b ON r.client_name = b.client_name
-        WHERE (b.client_name = :clientName OR r.client_name = :clientName 
-               OR (:clientName IS NULL AND EXISTS (
-                    SELECT 1 FROM candidates c2 
-                    WHERE c2.job_id = r.job_id
-               )))
-        AND c.timestamp IS NOT NULL
-    """, nativeQuery = true)
-    long countAllInterviewsByClientName(@Param("clientName") String clientName);
-
-    // ✅ Count ALL placements for a client across ALL job IDs
+    // Count ALL submissions across all job IDs and clients (across all users)
     @Query(value = """
     SELECT COUNT(*) 
-    FROM candidates c
-    JOIN requirements_model r ON c.job_id = r.job_id
+    FROM candidate_submissions cs
+    JOIN requirements_model r ON cs.job_id = r.job_id
+    JOIN bdm_client b ON r.client_name = b.client_name
+""", nativeQuery = true)
+    long countAllSubmissionsAcrossAllJobsAndClients();
+
+    // Count ALL submissions for a specific client across all job IDs
+    @Query(value = """
+    SELECT COUNT(*) 
+    FROM candidate_submissions cs
+    JOIN requirements_model r ON cs.job_id = r.job_id
+    JOIN bdm_client b ON r.client_name = b.client_name
+    WHERE b.client_name = :clientName
+""", nativeQuery = true)
+    long countAllSubmissionsByClientName(@Param("clientName") String clientName);
+
+    // Count ALL interviews for a client across ALL job IDs
+    @Query(value = """
+    SELECT COUNT(*) 
+    FROM interview_details idt
+    JOIN candidate_submissions cs ON idt.candidate_id = cs.candidate_id
+    JOIN requirements_model r ON cs.job_id = r.job_id
+    LEFT JOIN bdm_client b ON r.client_name = b.client_name
+    WHERE (b.client_name = :clientName OR r.client_name = :clientName 
+           OR (:clientName IS NULL AND EXISTS (
+                SELECT 1 FROM candidate_submissions cs2 
+                WHERE cs2.job_id = r.job_id
+           )))
+    AND idt.interview_date_time IS NOT NULL
+""", nativeQuery = true)
+    long countAllInterviewsByClientName(@Param("clientName") String clientName);
+
+    // Count ALL placements for a client across ALL job IDs
+    @Query(value = """
+    SELECT COUNT(*) 
+    FROM interview_details idt
+    JOIN candidate_submissions cs ON idt.candidate_id = cs.candidate_id
+    JOIN requirements_model r ON cs.job_id = r.job_id
     JOIN bdm_client b ON r.client_name = b.client_name
     WHERE b.client_name = :clientName
     AND (
-        -- ✅ Check if interview_status is a valid JSON and contains "Placed"
-        (JSON_VALID(c.interview_status) 
-         AND JSON_SEARCH(c.interview_status, 'one', 'Placed', NULL, '$[*].status') IS NOT NULL)
-        -- ✅ OR check if interview_status is stored as plain text "Placed"
-        OR UPPER(c.interview_status) = 'PLACED'
+        (JSON_VALID(idt.interview_status) 
+         AND JSON_SEARCH(idt.interview_status, 'one', 'Placed', NULL, '$[*].status') IS NOT NULL)
+        OR UPPER(idt.interview_status) = 'PLACED'
     )
 """, nativeQuery = true)
     long countAllPlacementsByClientName(@Param("clientName") String clientName);
