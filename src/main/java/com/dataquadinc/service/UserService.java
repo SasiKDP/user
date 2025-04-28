@@ -2,6 +2,7 @@
 package com.dataquadinc.service;
 
 import com.dataquadinc.dto.*;
+import com.dataquadinc.exceptions.DateRangeValidationException;
 import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.exceptions.ValidationException;
 import com.dataquadinc.mapper.UserMapper;
@@ -18,6 +19,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +40,6 @@ public class UserService {
 
     @Autowired
     private RolesDao rolesDao;
-
 
 //    public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
 //
@@ -111,9 +113,6 @@ public class UserService {
         if (userDao.findByUserId(userDto.getUserId()) != null) {
             errors.put("errorMessage", userDto.getUserId() + " already exists. Please log in");
         }
-        if (userDao.findByPersonalEmail(userDto.getPersonalemail()) != null) {
-            errors.put("errormessage", userDto.getPersonalemail()+" is already in use");
-        }
 
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
@@ -148,7 +147,6 @@ public class UserService {
         res.setUserName(dbUser.getUserName());
         res.setUserId(dbUser.getUserId());
         res.setEmail(dbUser.getEmail());
-        res.setPersonalemail(dbUser.getPersonalemail());
 
         // Create and send registration success email
         sendRegistrationConfirmationEmail(dbUser.getEmail());
@@ -445,7 +443,6 @@ public class UserService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
     public UserDetails getRecruiterById(String userId) {
         UserDetails recruiter = userDao.findByUserId(userId);
         if (recruiter == null) {
@@ -464,7 +461,7 @@ public class UserService {
         return totalSubmissions;
     }
 
-    // BDM Service class with the updated getAllBdmEmployees method
+
     public List<BdmEmployeeDTO> getAllBdmEmployees() {
         List<UserDetails> users = userDao.findBdmEmployees();  // Get BDM employees
 
@@ -535,6 +532,38 @@ public class UserService {
             );
         }).collect(Collectors.toList());
     }
+
+    public List<EmployeeWithRole> getEmployeesByJoiningDateRange(LocalDate startDate, LocalDate endDate) {
+        // ✅ Date range validations
+
+        if (startDate.isAfter(endDate)) {
+            throw new DateRangeValidationException("Start date must not be after end date.");
+        }
+
+        List<UserDetails> users = userDao.findEmployeesByJoiningDateRange(startDate, endDate);
+
+        return users.stream().map(user -> {
+            String roleName = Optional.ofNullable(user.getRoles())
+                    .flatMap(roles -> roles.stream()
+                            .map(role -> role.getName().name())
+                            .findFirst())
+                    .orElse("No Role");
+
+            return new EmployeeWithRole(
+                    user.getUserId(),
+                    user.getUserName(),
+                    roleName,
+                    user.getEmail(),
+                    user.getDesignation(),
+                    user.getJoiningDate(),
+                    user.getGender(),
+                    user.getDob(),
+                    user.getPhoneNumber(),
+                    user.getPersonalemail(),
+                    user.getStatus());
+        }).collect(Collectors.toList());
+    }
+
 }
 
 
