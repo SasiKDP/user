@@ -3,12 +3,17 @@ package com.dataquadinc.service;
 import com.dataquadinc.dto.ForgotResponseDto;
 import com.dataquadinc.model.UserDetails;
 import com.dataquadinc.repository.UserDao;
+import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
+import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +37,9 @@ public class ForgotPasswordService {
 
     @Autowired
     private JavaMailSender mailSender;
+    private static final Logger logger = LoggerFactory.getLogger(ForgotPasswordService.class);
+
+
 
     private final Map<String, String> otpStorage = new HashMap<>();
 
@@ -294,18 +302,41 @@ public class ForgotPasswordService {
 //    }
 
 
-    private void sendOtpToEmail(String email, String otp) throws MailSendException {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("Your OTP for password reset");
-        message.setText("Your OTP for password reset is: " + otp);
-
+    public void sendOtpToEmail(String email, String otp) throws MailSendException {
         try {
+            // Create a MimeMessage for HTML content
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            // Set recipient, subject, and sender
+            helper.setTo(email);
+            helper.setSubject("Your OTP for password reset");
+            helper.setFrom("notifications@dataqinc.com");
+
+            // Build the HTML content
+            String emailContent = "<html>" +
+                    "<body>" +
+                    "<p>Your OTP code for password reset is: <strong>" + otp + "</strong>.</p>" +
+                    "<p> It is valid for 5 minutes.</p>"+
+                    "<p><strong>Note: This is an auto-generated email. Please do not reply to this email.</strong></p>" +
+                    "</body>" +
+                    "</html>";
+
+            // Set email content as HTML
+            helper.setText(emailContent, true);
+
+            // Send the email
             mailSender.send(message);
-        } catch (MailSendException e) {
+            logger.info("OTP email sent successfully to {}", email);
+        } catch (MessagingException e) {
+            logger.error("Failed to create or send OTP email to {}: {}", email, e.getMessage());
             throw new MailSendException("Failed to send OTP: " + email, e);
+        } catch (MailSendException e) {
+            logger.error("Failed to send OTP email to {}: {}", email, e.getMessage());
+            throw e;  // Re-throw the exception
         }
     }
+
 
     public ForgotResponseDto verifyOtp(String email, String otp) {
         // Check if the email is valid and the OTP exists
