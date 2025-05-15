@@ -101,7 +101,7 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
             ON TRIM(UPPER(r.client_name)) COLLATE utf8mb4_bin = TRIM(UPPER(b.client_name)) COLLATE utf8mb4_bin
         WHERE TRIM(UPPER(b.client_name)) COLLATE utf8mb4_bin = TRIM(UPPER(:clientName)) COLLATE utf8mb4_bin
         AND r.job_id IS NOT NULL
-    ) AS distinct_jobs0
+    ) AS distinct_jobs
 """, nativeQuery = true)
     long countRequirementsByClientName(@Param("clientName") String clientName);
 
