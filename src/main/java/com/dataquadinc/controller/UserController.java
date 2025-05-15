@@ -207,4 +207,16 @@ public class UserController {
         // Return the count as a response
         return ResponseEntity.ok(totalSubmissions);
     }
+
+    @GetMapping("/bdmlist/filterByDate")
+    public ResponseEntity<List<BdmEmployeeDTO>> getBdmEmployeesDateFilter(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        List<BdmEmployeeDTO> bdmEmployees = userService.getAllBdmEmployeesDateFilter(startDate,endDate);
+        if (bdmEmployees.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(bdmEmployees, HttpStatus.OK);
+    }
 }
