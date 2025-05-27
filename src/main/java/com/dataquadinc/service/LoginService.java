@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 @Service
 public class LoginService {
@@ -73,13 +74,16 @@ public class LoginService {
         // Get the first role assigned to the user (assuming at least one role is present)
         UserType roleType = userDetails.getRoles().iterator().next().getName();
 
+
+                String encoded= Base64.getEncoder().encodeToString(userDetails.getEncryptionKey().getBytes());
         // Create payload with the user's details and role
         LoginResponseDTO.Payload payload = new LoginResponseDTO.Payload(
                 userDetails.getUserId(),
                 userDetails.getUserName(),
                 userDetails.getEmail(),
                 roleType,
-                userDetails.getLastLoginTime()
+                userDetails.getLastLoginTime(),
+                encoded
         );
 
         // Return successful login response

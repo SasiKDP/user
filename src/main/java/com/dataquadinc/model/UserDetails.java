@@ -86,6 +86,17 @@ public class UserDetails {
     private Set<Roles> roles = new HashSet<>();
     private String status;
 
+    private String encryptionKey;
+
+    private boolean primarySuperAdmin;
+
+    public boolean isPrimarySuperAdmin() {
+        return primarySuperAdmin;
+    }
+
+    public void setPrimarySuperAdmin(boolean primarySuperAdmin) {
+        this.primarySuperAdmin = primarySuperAdmin;
+    }
 
     public String getUserId() {
         return userId;
@@ -213,5 +224,13 @@ public class UserDetails {
 
     public void setStatus(String status) {
         this.status = status.toUpperCase();
+    }
+
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
     }
 }
