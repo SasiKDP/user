@@ -124,6 +124,8 @@ public class UserService {
 
         // Convert DTO to entity
         UserDetails user = userMapper.toEntity(userDto);
+        user.setEncryptionKey("MyMulya@1234");
+        user.setPrimarySuperAdmin(false);
 
         // Map roles to the user
         Set<Roles> roles = userDto.getRoles().stream()
