@@ -16,7 +16,7 @@ spec:
       - name: userregistry-api
         image: sandycis476/register:latest
         ports:
-        - containerPort: 8083
+        - containerPort: 8084
 --- 
 apiVersion: v1
 kind: Service
@@ -27,8 +27,8 @@ spec:
     app: userregistry-api
   ports:
   - protocol: TCP
-    port: 8083         # Port exposed to the Ingress
-    targetPort: 8083 # Port in the application pod
+    port: 8084         # Port exposed to the Ingress
+    targetPort: 8084 # Port in the application pod
   type: ClusterIP
 
 
