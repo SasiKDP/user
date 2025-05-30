@@ -85,7 +85,7 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
     WHERE b.client_name = :clientName
     AND (
         (JSON_VALID(idt.interview_status) 
-         AND JSON_SEARCH(idt.interview_status, 'one', 'Placed', NULL, '$[*].status') IS NOT NULL)
+         AND JSON_SEARCH(idt.interview_status, 'one', 'PLACED', NULL, '$[*].status') IS NOT NULL)
         OR UPPER(idt.interview_status) = 'PLACED'
     )
 """, nativeQuery = true)
