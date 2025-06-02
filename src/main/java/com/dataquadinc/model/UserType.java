@@ -7,7 +7,8 @@ public enum UserType {
     EMPLOYEE,
     TEAMLEAD,
     BDM,
-    PARTNER
+    PARTNER,
+    INVOICE
 
 
 }
