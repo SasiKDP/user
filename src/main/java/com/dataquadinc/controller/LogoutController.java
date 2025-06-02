@@ -1,16 +1,16 @@
 package com.dataquadinc.controller;
 import com.dataquadinc.dto.LogoutResponseDTO;
 import com.dataquadinc.service.LogoutService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
-@CrossOrigin(origins = {"http://35.188.150.92", "http://192.168.0.140:3000", "http://192.168.0.139:3000","https://mymulya.com","http://localhost:3000","http://192.168.0.135:8080","http://192.168.0.135",
-        "http://182.18.177.16"})
 
 @RestController
 @RequestMapping("/users")
-public class  LogoutController {
+public class LogoutController {
 
     private final LogoutService logoutService;
 
@@ -20,10 +20,30 @@ public class  LogoutController {
     }
 
     @PutMapping("/logout/{userId}")
-    public LogoutResponseDTO logout(@PathVariable String userId) {
+    public ResponseEntity<LogoutResponseDTO> logout(@PathVariable String userId,
+                                                    HttpServletRequest request,
+                                                    HttpServletResponse response) {
+        LogoutResponseDTO logoutResponse = logoutService.logout(userId);
 
-        return logoutService.logout(userId);
+        if (logoutResponse.isSuccess()) {
+            System.out.println("=== CONTROLLER: User logged out successfully. Clearing cookie... ===");
+
+            // Clear the authToken cookie using ResponseCookie
+            ResponseCookie clearCookie = ResponseCookie.from("authToken", "")
+                    .httpOnly(true)
+                    .secure(false)  // Set to true if you're using HTTPS in production
+                    .path("/")
+                    .maxAge(0)     // This instructs browser to delete the cookie
+                    .sameSite("Lax")  // Keep sameSite as it was when setting the cookie
+                    .build();
+
+            // Add Set-Cookie header to response to clear cookie
+            response.setHeader("Set-Cookie", clearCookie.toString());
+
+            return ResponseEntity.ok(logoutResponse);
+        } else {
+            System.out.println("=== CONTROLLER: Logout failed. Returning 400 ===");
+            return ResponseEntity.badRequest().body(logoutResponse);
+        }
     }
 }
-
-
