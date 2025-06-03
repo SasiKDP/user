@@ -1,19 +1,23 @@
 package com.dataquadinc.model;
 
+import com.dataquadinc.model.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Data
-public class UserDetails {
+public class UserDetails implements org.springframework.security.core.userdetails.UserDetails {
 
     @Id
     @Column(unique = true,nullable = false)
@@ -76,7 +80,7 @@ public class UserDetails {
     private LocalDateTime lastLoginTime;
 
     @Column(nullable = false)
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles", // Name of the join table
             joinColumns = @JoinColumn(name = "user_id"), // Foreign key to UserDetails
@@ -98,6 +102,14 @@ public class UserDetails {
         this.primarySuperAdmin = primarySuperAdmin;
     }
 
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -114,8 +126,38 @@ public class UserDetails {
         this.userName = userName;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
     }
 
     public void setPassword(String password) {
@@ -224,13 +266,5 @@ public class UserDetails {
 
     public void setStatus(String status) {
         this.status = status.toUpperCase();
-    }
-
-    public String getEncryptionKey() {
-        return encryptionKey;
-    }
-
-    public void setEncryptionKey(String encryptionKey) {
-        this.encryptionKey = encryptionKey;
     }
 }

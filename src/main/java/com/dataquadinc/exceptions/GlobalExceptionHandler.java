@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmployeeAlreadyLoggedInException.class)
     public ResponseEntity<TimesheetResponseBean<String>> handleEmployeeAlreadyLoggedIn(EmployeeAlreadyLoggedInException ex) {
         // Prepare the error details
-       TimesheetResponseBean.ErrorDetail errorDetail = new TimesheetResponseBean.ErrorDetail(
+        TimesheetResponseBean.ErrorDetail errorDetail = new TimesheetResponseBean.ErrorDetail(
                 "Employee " + ex.getEmployeeId() + " has already logged in today.",
                 "300"
         );
@@ -114,15 +114,22 @@ public class GlobalExceptionHandler {
     }
 
     // Handle User Already Logged In Exception (returns 400 Bad Request)
+    // Handle User Already Logged In Exception (returns 400 Bad Request)
     @ExceptionHandler(UserAlreadyLoggedInException.class)
     public ResponseEntity<LoginResponseDTO> handleUserAlreadyLoggedIn(UserAlreadyLoggedInException e) {
+        System.out.println("=== GLOBAL HANDLER: UserAlreadyLoggedInException caught! ===");
+        System.out.println("=== GLOBAL HANDLER: Exception message: " + e.getMessage() + " ===");
+        System.out.println("=== GLOBAL HANDLER: Exception class: " + e.getClass().getName() + " ===");
+
         LoginResponseDTO errorResponse = new LoginResponseDTO(
                 false,
                 "Unsuccessful",
                 null,
                 new LoginResponseDTO.ErrorDetails("201", e.getMessage())
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(errorResponse);
+
+        System.out.println("=== GLOBAL HANDLER: Returning BAD_REQUEST response ===");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     // Handle User Not Found Exception (returns 404 Not Found)
