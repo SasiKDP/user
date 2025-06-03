@@ -5,13 +5,11 @@ import com.dataquadinc.dto.LoginResponseDTO;
 import com.dataquadinc.exceptions.InvalidCredentialsException;
 import com.dataquadinc.exceptions.UserAlreadyLoggedInException;
 import com.dataquadinc.exceptions.UserNotFoundException;
-import com.dataquadinc.exceptions.UserInactiveException; // Import the UserInactiveException
 import com.dataquadinc.service.LoginService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,23 +33,33 @@ public class LoginController {
             System.out.println("=== CONTROLLER: Service returned successfully ===");
             System.out.println("=== CONTROLLER: Response message: " + response.getMessage() + " ===");
 
-            // Removed cookie logic
+            HttpHeaders headers = new HttpHeaders();
 
-            System.out.println("=== CONTROLLER: Returning 200 OK response ===");
-            return ResponseEntity.ok(response);
+            if (response.getPayload() != null && response.getPayload().getToken() != null) {
+                String token = response.getPayload().getToken();
 
-        } catch (UserAlreadyLoggedInException e) {
-            System.out.println("=== CONTROLLER: Caught UserAlreadyLoggedInException: " + e.getMessage() + " ===");
-            System.out.println("=== CONTROLLER: Re-throwing to global handler ===");
-            throw e;
-        } catch (UserNotFoundException e) {
-            System.out.println("=== CONTROLLER: Caught UserNotFoundException: " + e.getMessage() + " ===");
-            throw e;
-        } catch (InvalidCredentialsException e) {
-            System.out.println("=== CONTROLLER: Caught InvalidCredentialsException: " + e.getMessage() + " ===");
-            throw e;
+                // Set secure, HTTP-only cookie — Gateway will convert this into Authorization header
+                ResponseCookie cookie = ResponseCookie.from("authToken", token)
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/")
+                        .maxAge(24 * 60 * 60) // 24 hours
+                        .sameSite("Lax")
+                        .build();
+
+                headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+                System.out.println("=== CONTROLLER: Set authToken cookie for Gateway ===");
+            }
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(response);
+
+        } catch (UserAlreadyLoggedInException | UserNotFoundException | InvalidCredentialsException e) {
+            System.out.println("=== CONTROLLER: Known exception: " + e.getMessage() + " ===");
+            throw e; // Let global exception handler manage it
         } catch (Exception e) {
-            System.out.println("=== CONTROLLER: Caught unexpected exception: " + e.getClass().getName() + " - " + e.getMessage() + " ===");
+            System.out.println("=== CONTROLLER: Unexpected exception: " + e.getClass().getName() + " - " + e.getMessage() + " ===");
             e.printStackTrace();
             throw e;
         }
