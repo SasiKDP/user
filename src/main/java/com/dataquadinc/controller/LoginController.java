@@ -41,7 +41,7 @@ public class LoginController {
                 // Set secure, HTTP-only cookie — Gateway will convert this into Authorization header
                 ResponseCookie cookie = ResponseCookie.from("authToken", token)
                         .httpOnly(true)
-                        .secure(true)
+                        .secure(false)
                         .path("/")
                         .maxAge(24 * 60 * 60) // 24 hours
                         .sameSite("Lax")
