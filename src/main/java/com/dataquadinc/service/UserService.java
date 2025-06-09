@@ -8,9 +8,12 @@ import com.dataquadinc.exceptions.ValidationException;
 import com.dataquadinc.mapper.UserMapper;
 import com.dataquadinc.model.Roles;
 import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.model.UserType;
 import com.dataquadinc.repository.RolesDao;
 import com.dataquadinc.repository.UserDao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +43,9 @@ public class UserService {
 
     @Autowired
     private RolesDao rolesDao;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
 
 //    public ResponseEntity<ResponseBean<UserResponse>> registerUser(UserDto userDto) throws ValidationException {
 //
@@ -254,6 +260,67 @@ public class UserService {
                 .collect(Collectors.toList());
 
         // Return the list of EmployeeWithRole objects with an OK response status
+        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<EmployeeWithRole>> getEmployeesByUserIdAndRole(String userId, String roleName) {
+        UserType roleEnum = null;
+        if (roleName != null && !roleName.isBlank()) {
+            try {
+                roleEnum = UserType.valueOf(roleName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid role name provided: {}", roleName);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        List<UserDetails> users;
+
+        if ((userId == null || userId.isBlank()) && roleEnum == null) {
+            users = userDao.findAll();
+            logger.info("Fetching all users. Total: {}", users.size());
+        } else {
+            users = userDao.findByUserIdAndRole(userId, roleEnum);
+            logger.info("Fetching users by filters - userId: {}, role: {}. Total found: {}",
+                    userId, roleEnum != null ? roleEnum.name() : "ANY", users.size());
+        }
+
+        if (users.isEmpty()) {
+            logger.info("No users found for the given criteria.");
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        List<EmployeeWithRole> employeeRoles = users.stream()
+                .map(user -> {
+                    String rolesString = user.getRoles().stream()
+                            .map(role -> role.getName().name())
+                            .collect(Collectors.joining(", "));
+
+                    return new EmployeeWithRole(
+                            user.getUserId(),
+                            user.getUserName(),
+                            rolesString,
+                            user.getEmail(),
+                            user.getDesignation(),
+                            user.getJoiningDate(),
+                            user.getGender(),
+                            user.getDob(),
+                            user.getPhoneNumber(),
+                            user.getPersonalemail(),
+                            user.getStatus()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // 🔍 Log how many users belong to each role
+        Map<String, Long> roleCounts = users.stream()
+                .flatMap(u -> u.getRoles().stream())
+                .map(role -> role.getName().name())
+                .collect(Collectors.groupingBy(roleNameStr -> roleNameStr, Collectors.counting()));
+
+        roleCounts.forEach((role, count) ->
+                logger.info("Role: {} - User count: {}", role, count));
+
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
 

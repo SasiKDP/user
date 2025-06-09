@@ -1,6 +1,7 @@
 package com.dataquadinc.repository;
 
 import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.model.UserType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,11 +15,11 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
 
     UserDetails findByEmail(String email);
     UserDetails findByUserId(String userId);
-    UserDetails findByUserName(String userName);
-    List<UserDetails> findByRolesId(Long id);
-
-    @Query("SELECT u FROM UserDetails u WHERE u.personalemail = :personalemail")
-    UserDetails findByPersonalEmail(@Param("personalemail") String personalemail);
+    @Query("SELECT u FROM UserDetails u JOIN u.roles r " +
+            "WHERE (:userId IS NULL OR u.userId = :userId) " +
+            "AND (:roleEnum IS NULL OR r.name = :roleEnum)")
+    List<UserDetails> findByUserIdAndRole(@Param("userId") String userId,
+                                          @Param("roleEnum") UserType roleEnum);
 
     // ✅ Fetch only BDM employees
     @Query("SELECT u FROM UserDetails u JOIN u.roles r WHERE r.name = 'BDM'")

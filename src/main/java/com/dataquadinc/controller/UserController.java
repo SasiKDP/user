@@ -140,16 +140,34 @@ public class UserController {
         return userService.getRolesByUserId(userId);
     }
 
+//    @GetMapping("/employee")
+//    public ResponseEntity<List<EmployeeWithRole>> getAllEmployees() {
+//        ResponseEntity<List<EmployeeWithRole>> responseEntity = userService.getAllEmployeesWithRoles();
+//        List<EmployeeWithRole> employeeRoles = responseEntity.getBody();
+//        if (employeeRoles == null || employeeRoles.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//
+//        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
+//    }
+
     @GetMapping("/employee")
-    public ResponseEntity<List<EmployeeWithRole>> getAllEmployees() {
-        ResponseEntity<List<EmployeeWithRole>> responseEntity = userService.getAllEmployeesWithRoles();
+    public ResponseEntity<List<EmployeeWithRole>> getAllEmployees(
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String roleName) {
+
+        ResponseEntity<List<EmployeeWithRole>> responseEntity =
+                userService.getEmployeesByUserIdAndRole(userId, roleName);
+
         List<EmployeeWithRole> employeeRoles = responseEntity.getBody();
+
         if (employeeRoles == null || employeeRoles.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
+
 
     @GetMapping("/employee/filterByJoiningDate")
     public ResponseEntity<?> getEmployeesByJoiningDateRange(
