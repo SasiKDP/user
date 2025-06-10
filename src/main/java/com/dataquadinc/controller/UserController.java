@@ -6,12 +6,17 @@ import com.dataquadinc.exceptions.UserNotFoundException;
 import com.dataquadinc.model.Roles;
 
 import com.dataquadinc.model.UserDetails;
+import com.dataquadinc.service.JwtService;
 import com.dataquadinc.service.UserService;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,17 +24,7 @@ import javax.management.relation.RoleNotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-
-//@CrossOrigin(origins = "http://35.188.150.92")
-////@CrossOrigin(origins = "http://192.168.0.139:3000")
-////git status
-
-
-
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -37,6 +32,9 @@ import java.util.Set;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<ResponseBean<UserResponse>> registerUser(@Valid  @RequestBody UserDto userDto) throws RoleNotFoundException {
@@ -139,16 +137,34 @@ public class UserController {
         return userService.getRolesByUserId(userId);
     }
 
+//    @GetMapping("/employee")
+//    public ResponseEntity<List<EmployeeWithRole>> getAllEmployees() {
+//        ResponseEntity<List<EmployeeWithRole>> responseEntity = userService.getAllEmployeesWithRoles();
+//        List<EmployeeWithRole> employeeRoles = responseEntity.getBody();
+//        if (employeeRoles == null || employeeRoles.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//
+//        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
+//    }
+
     @GetMapping("/employee")
-    public ResponseEntity<List<EmployeeWithRole>> getAllEmployees() {
-        ResponseEntity<List<EmployeeWithRole>> responseEntity = userService.getAllEmployeesWithRoles();
+    public ResponseEntity<List<EmployeeWithRole>> getAllEmployees(
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String roleName) {
+
+        ResponseEntity<List<EmployeeWithRole>> responseEntity =
+                userService.getEmployeesByUserIdAndRole(userId, roleName);
+
         List<EmployeeWithRole> employeeRoles = responseEntity.getBody();
+
         if (employeeRoles == null || employeeRoles.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
+
 
     @GetMapping("/employee/filterByJoiningDate")
     public ResponseEntity<?> getEmployeesByJoiningDateRange(
@@ -218,4 +234,53 @@ public class UserController {
         }
         return new ResponseEntity<>(bdmEmployees, HttpStatus.OK);
     }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(
+            @CookieValue(value = "authToken", required = false) String cookieToken,
+            @RequestHeader(value = "Authorization", required = false) String headerToken,
+            HttpServletResponse response) {
+
+        // Prefer cookie over header
+        String token = Optional.ofNullable(cookieToken)
+                .filter(t -> !t.isBlank())
+                .orElseGet(() -> {
+                    if (headerToken != null && headerToken.startsWith("Bearer ")) {
+                        return headerToken.substring(7);
+                    }
+                    return null;
+                });
+
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Token not found"));
+        }
+
+        try {
+            Claims claims = jwtService.getClaims(token); // ✅ You need to make this public in JwtService
+            String email = claims.getSubject();
+
+            // Just generate a fresh token every time
+            String newToken = jwtService.generateToken(email);
+
+            ResponseCookie cookie = ResponseCookie.from("authToken", newToken)
+                    .httpOnly(true)
+                    .secure(false)  // true in prod with HTTPS
+                    .sameSite("Lax")
+                    .path("/")
+                    .maxAge(30 * 60) // 30 minutes
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Token refreshed successfully",
+                    "token", newToken
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid or expired token"));
+        }
+    }
+
 }
