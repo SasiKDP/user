@@ -7,7 +7,7 @@ public enum UserType {
     EMPLOYEE,
     TEAMLEAD,
     BDM,
-    PARTNER
-
-
+    PARTNER,
+    PAYROLLADMIN,
+    COORDINATOR
 }
