@@ -532,6 +532,9 @@ public class UserService {
 
 
     public List<BdmEmployeeDTO> getAllBdmEmployees() {
+
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.withDayOfMonth(1);
         List<UserDetails> users = userDao.findBdmEmployees();  // Get BDM employees
 
         System.out.println("Total BDM employees found: " + users.size());
@@ -550,11 +553,11 @@ public class UserService {
                     .orElse("No Role");
 
             // ✅ Count Clients (based on onboarding)
-            long clientCount = userDao.countClientsByUserId(userId);
+            long clientCount = userDao.countClientsByUserIdAndDateRange(userId,startDate,endDate);
             System.out.println("Client Count: " + clientCount);
 
             // ✅ Get client names for this BDM
-            List<String> clientNames = userDao.findClientNamesByUserId(userId);
+            List<String> clientNames = userDao.findClientNamesByUserIdAndDateRange(userId,startDate,endDate);
             System.out.println("Client Names for this BDM: " + clientNames);
 
             // Initialize counters
@@ -569,19 +572,19 @@ public class UserService {
                     System.out.println("Processing Client: " + clientName);
 
                     // ✅ Count ALL submissions for this client (across ALL job IDs)
-                    submissionCount += userDao.countAllSubmissionsByClientName(clientName); // Updated method for count
+                    submissionCount += userDao.countAllSubmissionsByClientNameAndDateRange(clientName,startDate,endDate); // Updated method for count
                     System.out.println("Total Submission Count: " + submissionCount + " for Client: '" + clientName + "'");
 
                     // ✅ Count ALL Interviews for this client (across ALL job IDs)
-                    interviewCount += userDao.countAllInterviewsByClientName(clientName);
+                    interviewCount += userDao.countAllInterviewsByClientNameAndDateRange(clientName,startDate,endDate);
                     System.out.println("Total Interview Count: " + interviewCount + " for Client: '" + clientName + "'");
 
                     // ✅ Count ALL Placements for this client (across ALL job IDs)
-                    placementCount += userDao.countAllPlacementsByClientName(clientName);
+                    placementCount += userDao.countAllPlacementsByClientNameAndDateRange(clientName,startDate,endDate);
                     System.out.println("Total Placement Count: " + placementCount + " for Client: '" + clientName + "'");
 
                     // ✅ Count ALL Requirements for this client
-                    requirementsCount += userDao.countRequirementsByClientName(clientName);
+                    requirementsCount += userDao.countRequirementsByClientNameAndDateRange(clientName,startDate,endDate);
                     System.out.println("Total Requirements Count: " + requirementsCount + " for Client: '" + clientName + "'");
                 }
             }
