@@ -324,6 +324,71 @@ public class UserService {
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
 
+
+    public ResponseEntity<List<EmployeeWithRole>> getEmployeesWithFlexibleRoleFilter(String userId, String roleName, String excludeRoleName) {
+        UserType includeRole = null;
+        UserType excludeRole = null;
+
+        // Parse roleName
+        if (roleName != null && !roleName.isBlank()) {
+            try {
+                includeRole = UserType.valueOf(roleName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid role name provided: {}", roleName);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        // Parse excludeRoleName
+        if (excludeRoleName != null && !excludeRoleName.isBlank()) {
+            try {
+                excludeRole = UserType.valueOf(excludeRoleName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid exclude role name provided: {}", excludeRoleName);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        List<UserDetails> users;
+
+        if (excludeRole != null) {
+            users = userDao.findByUserIdAndRoleNot(userId, excludeRole);
+        } else if (includeRole != null) {
+            users = userDao.findByUserIdAndRole(userId, includeRole);
+        } else {
+            users = (userId == null || userId.isBlank()) ? userDao.findAll() : userDao.findByUserIdAndRole(userId, null);
+        }
+
+        if (users.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        List<EmployeeWithRole> employeeRoles = users.stream()
+                .map(user -> {
+                    String rolesString = user.getRoles().stream()
+                            .map(role -> role.getName().name())
+                            .collect(Collectors.joining(", "));
+
+                    return new EmployeeWithRole(
+                            user.getUserId(),
+                            user.getUserName(),
+                            rolesString,
+                            user.getEmail(),
+                            user.getDesignation(),
+                            user.getJoiningDate(),
+                            user.getGender(),
+                            user.getDob(),
+                            user.getPhoneNumber(),
+                            user.getPersonalemail(),
+                            user.getStatus()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
+    }
+
+
 //    public ResponseEntity<ResponseBean<UserResponse>> updateUser(String userId, UserDto userDto) {
 //        Map<String, String> errors = new HashMap<>();
 //

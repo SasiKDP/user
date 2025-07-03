@@ -21,6 +21,13 @@ public interface UserDao extends JpaRepository<UserDetails, Integer> {
     List<UserDetails> findByUserIdAndRole(@Param("userId") String userId,
                                           @Param("roleEnum") UserType roleEnum);
 
+
+    @Query("SELECT DISTINCT u FROM UserDetails u JOIN u.roles r " +
+            "WHERE (:userId IS NULL OR u.userId = :userId) " +
+            "AND (:excludeRole IS NULL OR r.name <> :excludeRole)")
+    List<UserDetails> findByUserIdAndRoleNot(@Param("userId") String userId,
+                                             @Param("excludeRole") UserType excludeRole);
+
     // ✅ Fetch only BDM employees
     @Query("SELECT u FROM UserDetails u JOIN u.roles r WHERE r.name = 'BDM'")
     List<UserDetails> findBdmEmployees();
