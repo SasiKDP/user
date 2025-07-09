@@ -353,13 +353,26 @@ public class UserService {
 
         if (excludeRole != null) {
             users = userDao.findByUserIdAndRoleNot(userId, excludeRole);
+
+            logger.info("Fetched {} users with userId={} excluding role={}, status='ACTIVE' and designation<>'testuser'",
+                    users.size(), userId, excludeRole);
+
         } else if (includeRole != null) {
             users = userDao.findByUserIdAndRole(userId, includeRole);
+
+            logger.info("Fetched {} users with userId={} and role={}, status='ACTIVE' and designation<>'testuser'",
+                    users.size(), userId, includeRole);
+
         } else {
-            users = (userId == null || userId.isBlank()) ? userDao.findAll() : userDao.findByUserIdAndRole(userId, null);
+            users = (userId == null || userId.isBlank()) ? userDao.findAllActiveNonTestUsers() : userDao.findByUserIdAndRole(userId, null);
+
+            logger.info("Fetched {} users with userId={}, no role filter, status='ACTIVE' and designation<>'testuser'",
+                    users.size(), userId);
+
         }
 
         if (users.isEmpty()) {
+            logger.info("No users found matching the filters.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
@@ -384,6 +397,8 @@ public class UserService {
                     );
                 })
                 .collect(Collectors.toList());
+
+        logger.info("Returning {} employee records in response", employeeRoles.size());
 
         return new ResponseEntity<>(employeeRoles, HttpStatus.OK);
     }
