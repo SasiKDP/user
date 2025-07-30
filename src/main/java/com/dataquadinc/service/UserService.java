@@ -564,7 +564,22 @@ public class UserService {
         }).collect(Collectors.toList());
     }
 
+   public String changeUserId(){
 
+    List<UserDetails> users=userDao.findAll();
+
+    for(UserDetails user:users){
+
+        String userId=user.getUserId();
+
+        String updatedUserId=userId.replaceFirst("DQIND","ADRT");
+
+        user.setUserId(updatedUserId);
+
+        userDao.save(user);
+    }
+    return "success";
+   }
 }
 
 

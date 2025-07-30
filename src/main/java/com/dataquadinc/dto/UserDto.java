@@ -73,6 +73,15 @@ public class UserDto {
         private Set<UserType> roles;
 
     private String status;
+    private String entity;
+
+    public String getEntity() {
+        return entity;
+    }
+
+    public void setEntity(String entity) {
+        this.entity = entity;
+    }
 
     public UserDto() {
         this.status = "ACTIVE";  // Default value for status

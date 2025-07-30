@@ -94,6 +94,16 @@ public class UserDetails implements org.springframework.security.core.userdetail
 
     private boolean primarySuperAdmin;
 
+    private String entity;
+
+    public String getEntity() {
+        return entity;
+    }
+
+    public void setEntity(String entity) {
+        this.entity = entity;
+    }
+
     public boolean isPrimarySuperAdmin() {
         return primarySuperAdmin;
     }

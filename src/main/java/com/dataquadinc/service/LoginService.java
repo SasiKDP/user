@@ -109,8 +109,9 @@ public class LoginService {
                 userDetails.getEmail(),
                 roleType,
                 userDetails.getLastLoginTime(),
+                token,
                 encodedKey,
-                token
+                userDetails.getEntity()
         );
 
         // Assuming LoginResponseDTO has an overloaded constructor to also include token
